@@ -306,6 +306,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         inventoryTable.setRowHeight(22);
         inventorySorter = new TableRowSorter<>(inventoryModel);
         inventoryTable.setRowSorter(inventorySorter);
+        // stock changes (orders, cancellations, restocks) re-filter the rows; keep the counter in step
+        inventorySorter.addRowSorterListener(e -> updateInventoryCount());
         inventoryTable.getColumnModel().getColumn(2).setPreferredWidth(220);
         inventoryTable.getColumnModel().getColumn(3).setPreferredWidth(260);
         inventoryTable.setDefaultRenderer(Object.class, new StockRenderer());
@@ -361,6 +363,10 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
                 return (c.getSku() + " " + c.getName() + " " + c.getSpecs()).toLowerCase().contains(text);
             }
         });
+        updateInventoryCount();
+    }
+
+    private void updateInventoryCount() {
         inventoryCount.setText(inventoryTable.getRowCount() + " of " + store.getAllParts().size() + " parts shown");
         inventoryCount.revalidate();
     }
