@@ -37,6 +37,8 @@ import java.util.Set;
  * Swing user interface. It talks to the domain exclusively through {@link StoreFacade}.
  */
 public class MainFrame extends JFrame implements ConfigurationEditor {
+    private static final long serialVersionUID = 1L;
+
 
     static final Color ACCENT = new Color(0x2F6FEB);
     static final Color OK = new Color(0x1A7F37);
@@ -834,7 +836,9 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
 
     private static void addRow(JPanel p, GridBagConstraints g, String label, JComponent field) {
         g.gridx = 0; g.weightx = 0; g.gridwidth = 1;
-        p.add(new JLabel(label), g);
+        JLabel l = new JLabel(label);
+        l.setBorder(new EmptyBorder(0, 0, 0, 4)); // room for the last glyph when this is the widest label
+        p.add(l, g);
         g.gridx = 1; g.weightx = 1;
         // small preferred width so the label column never gets squeezed; the field takes the extra space
         field.setPreferredSize(new Dimension(80, field.getPreferredSize().height));
@@ -850,6 +854,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private class PartRenderer extends DefaultListCellRenderer {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                                boolean sel, boolean focus) {
@@ -867,6 +873,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private class OrdersModel extends AbstractTableModel {
+        private static final long serialVersionUID = 1L;
+
         private final String[] cols = {"Order", "Customer", "Product", "Qty", "Pricing", "Total", "Status"};
 
         @Override public int getRowCount() { return store.getOrders().size(); }
@@ -889,6 +897,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private class InventoryModel extends AbstractTableModel {
+        private static final long serialVersionUID = 1L;
+
         private final String[] cols = {"SKU", "Type", "Part", "Specs", "Price", "Stock"};
 
         @Override public int getRowCount() { return store.getAllParts().size(); }
@@ -910,6 +920,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private static class StatusRenderer extends DefaultTableCellRenderer {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public java.awt.Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc,
                                                                 int row, int col) {
@@ -927,6 +939,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private static class StockRenderer extends DefaultTableCellRenderer {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public java.awt.Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc,
                                                                 int row, int col) {

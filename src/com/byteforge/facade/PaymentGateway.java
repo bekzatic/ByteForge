@@ -65,6 +65,8 @@ public class PaymentGateway {
     }
 
     public static class PaymentDeclinedException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
         public PaymentDeclinedException(String message) {
             super(message);
         }

@@ -5,6 +5,8 @@ import java.util.List;
 
 /** Thrown by {@link PCBuilder#build()} when the selected parts do not work together. */
 public class IncompatibleBuildException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
     private final List<String> issues;
 
     public IncompatibleBuildException(List<String> issues) {
