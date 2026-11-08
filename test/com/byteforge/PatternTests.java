@@ -242,10 +242,46 @@ public final class PatternTests {
             o.advance();
             eq("[a:PAID, b:PAID, a:ASSEMBLING]", seen.toString());
         });
-        test("Observer", "order life cycle ends at DELIVERED", () -> {
+        test("State", "life cycle PLACED -> ... -> DELIVERED, then no further step", () -> {
             Order o = new Order("T", new BasePC(preset(BuildDirector.Preset.OFFICE)), 1, new PricingStrategies.Regular());
-            for (int i = 0; i < 10; i++) o.advance();
-            eq(OrderStatus.DELIVERED, o.getStatus());
+            List<OrderStatus> seen = new ArrayList<>();
+            seen.add(o.getStatus());
+            for (int i = 0; i < 5; i++) { o.advance(); seen.add(o.getStatus()); }
+            eq("[PLACED, PAID, ASSEMBLING, TESTING, SHIPPED, DELIVERED]", seen.toString());
+            expect(IllegalStateException.class, o::advance);
+        });
+        test("State", "only PLACED and PAID orders can be cancelled", () -> {
+            Order o = new Order("T", new BasePC(preset(BuildDirector.Preset.OFFICE)), 1, new PricingStrategies.Regular());
+            List<Boolean> allowed = new ArrayList<>();
+            for (int i = 0; i < 6; i++) { allowed.add(o.canCancel()); if (i < 5) o.advance(); }
+            eq("[true, true, false, false, false, false]", allowed.toString());
+        });
+        test("State", "cancelling while ASSEMBLING is rejected with a reason", () -> {
+            Order o = store.checkout("Ann", "4242", preset(BuildDirector.Preset.OFFICE),
+                    EnumSet.noneOf(AddOnOption.class), new PricingStrategies.Regular(), 1);
+            o.advance();
+            IllegalStateException e = expect(IllegalStateException.class, () -> store.cancelOrder(o, "too late"));
+            check(e.getMessage().contains("being assembled"), e.getMessage());
+            eq(OrderStatus.ASSEMBLING, o.getStatus());
+        });
+        test("State", "cancelled order cannot advance", () -> {
+            Order o = new Order("T", new BasePC(preset(BuildDirector.Preset.OFFICE)), 1, new PricingStrategies.Regular());
+            o.cancel("test");
+            eq(OrderStatus.CANCELLED, o.getStatus());
+            expect(IllegalStateException.class, o::advance);
+            expect(IllegalStateException.class, () -> o.cancel("again"));
+        });
+        test("Facade", "cancelling a paid order refunds and restocks", () -> {
+            Parts.Gpu gpu = sku("PH-2002");
+            int before = Inventory.getInstance().getStock(gpu);
+            Order o = store.checkout("Ann", "4242", preset(BuildDirector.Preset.GAMING),
+                    EnumSet.noneOf(AddOnOption.class), new PricingStrategies.Regular(), 1);
+            store.cancelOrder(o, "changed my mind");
+            eq(OrderStatus.CANCELLED, o.getStatus());
+            eq(before, Inventory.getInstance().getStock(gpu));
+            near(o.getTotal(), store.getPaymentGateway().refundedTotal());
+            near(0, store.getDashboard().getRevenue());
+            eq("changed my mind", o.getCancelReason());
         });
         test("Observer", "low-stock alert fires at the threshold", () -> {
             Parts.Cpu i9 = sku("NT-CPU-04"); // 3 in stock

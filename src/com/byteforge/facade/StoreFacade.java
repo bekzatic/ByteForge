@@ -18,12 +18,13 @@ import com.byteforge.model.ComponentType;
 import com.byteforge.observer.Listeners;
 import com.byteforge.observer.Order;
 import com.byteforge.observer.OrderObserver;
-import com.byteforge.observer.OrderStatus;
 import com.byteforge.strategy.PricingStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -155,17 +156,36 @@ public class StoreFacade {
         String tx = payments.capture(auth);
 
         Order order = new Order(customer, q.getProduct(), quantity, pricing);
+        order.setPaymentId(tx);
         orderObservers.forEach(order::attach);
         orders.add(order);
+        reservedUnits.put(order, units);
         log.accept(String.format("[Checkout] %s placed by %s - %s, total $%,.2f (payment %s)",
                 order.getId(), customer, pricing.getName(), order.getTotal(), tx));
-        order.setStatus(OrderStatus.PAID);
+        order.advance(); // PLACED -> PAID (State pattern decides the next step)
         return order;
     }
 
     public void advanceOrder(Order order) {
         order.advance();
     }
+
+    /**
+     * Cancels an order if its current state allows it (State pattern), then refunds the
+     * payment and puts every reserved part back into the inventory.
+     */
+    public void cancelOrder(Order order, String reason) {
+        order.cancel(reason); // throws IllegalStateException if the state forbids it
+        payments.refund(order.getPaymentId(), order.getTotal());
+        for (Component c : reservedUnits.getOrDefault(order, Collections.emptyList())) {
+            inventory.restock(c, 1);
+        }
+        reservedUnits.remove(order);
+        log.accept(String.format("[Checkout] %s cancelled (%s): $%,.2f refunded, parts returned to stock.",
+                order.getId(), order.getCancelReason(), order.getTotal()));
+    }
+
+    private final Map<Order, List<Component>> reservedUnits = new HashMap<>();
 
     public List<Order> getOrders() {
         return Collections.unmodifiableList(orders);

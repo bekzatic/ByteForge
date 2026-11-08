@@ -20,8 +20,13 @@ public final class Listeners {
 
         @Override
         public void onStatusChanged(Order order, OrderStatus oldStatus, OrderStatus newStatus) {
-            log.accept(String.format("[Email -> %s] Your order %s is now %s.",
-                    order.getCustomer(), order.getId(), newStatus));
+            if (newStatus == OrderStatus.CANCELLED) {
+                log.accept(String.format("[Email -> %s] Order %s was cancelled (%s). $%,.2f will be refunded.",
+                        order.getCustomer(), order.getId(), order.getCancelReason(), order.getTotal()));
+            } else {
+                log.accept(String.format("[Email -> %s] Your order %s is now %s.",
+                        order.getCustomer(), order.getId(), newStatus));
+            }
         }
     }
 
@@ -38,6 +43,8 @@ public final class Listeners {
                         order.getQuantity(), order.getProduct().getDescription(), order.getId()));
             } else if (newStatus == OrderStatus.TESTING) {
                 log.accept("[Workshop] Running 4h stress test on " + order.getId() + ".");
+            } else if (newStatus == OrderStatus.CANCELLED) {
+                log.accept("[Workshop] Removed " + order.getId() + " from the assembly queue.");
             }
         }
     }
@@ -60,9 +67,16 @@ public final class Listeners {
             } else if (newStatus == OrderStatus.DELIVERED) {
                 delivered++;
                 log.accept(String.format("[Dashboard] Delivered orders: %d", delivered));
+            } else if (newStatus == OrderStatus.CANCELLED && oldStatus != OrderStatus.PLACED) {
+                cancelled++;
+                revenue -= order.getTotal();
+                log.accept(String.format("[Dashboard] Cancelled orders: %d | Revenue: $%,.2f", cancelled, revenue));
             }
         }
 
+        private int cancelled;
+
+        public synchronized int getCancelled() { return cancelled; }
         public synchronized int getPaidOrders() { return paidOrders; }
         public synchronized int getDelivered() { return delivered; }
         public synchronized double getRevenue() { return revenue; }

@@ -67,6 +67,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     private final OrdersModel ordersModel = new OrdersModel();
     private final JTable ordersTable = new JTable(ordersModel);
     private final JLabel dashboardLabel = new JLabel();
+    private final JLabel orderHint = new JLabel("Select an order to see what can happen next.");
+    private final JButton cancelButton = new JButton("Cancel selected order");
     private final InventoryModel inventoryModel = new InventoryModel();
     private final JTabbedPane tabs = new JTabbedPane();
 
@@ -256,18 +258,30 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
             ordersModel.fireTableDataChanged();
             updateDashboard();
         });
+        cancelButton.setEnabled(false);
+        cancelButton.addActionListener(e -> cancelSelected());
+        ordersTable.getSelectionModel().addListSelectionListener(e -> updateOrderHint());
+        ordersTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         dashboardLabel.setFont(dashboardLabel.getFont().deriveFont(Font.BOLD, 13f));
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         bar.add(advance);
         bar.add(advanceAll);
+        bar.add(cancelButton);
         bar.add(Box.createHorizontalStrut(20));
         bar.add(dashboardLabel);
         updateDashboard();
 
+        orderHint.setBorder(new EmptyBorder(4, 12, 0, 0));
+        orderHint.setFont(orderHint.getFont().deriveFont(Font.ITALIC));
+        JPanel south = new JPanel(new BorderLayout());
+        south.add(orderHint, BorderLayout.NORTH);
+        south.add(bar, BorderLayout.SOUTH);
+
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(new EmptyBorder(6, 6, 6, 6));
         p.add(new JScrollPane(ordersTable), BorderLayout.CENTER);
-        p.add(bar, BorderLayout.SOUTH);
+        p.add(south, BorderLayout.SOUTH);
         return p;
     }
 
@@ -542,21 +556,74 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         refreshPickerLabels();
     }
 
-    private void advanceSelected() {
+    private Order selectedOrder() {
         int row = ordersTable.getSelectedRow();
-        if (row < 0) {
-            return;
+        return row < 0 ? null : store.getOrders().get(ordersTable.convertRowIndexToModel(row));
+    }
+
+    private void advanceSelected() {
+        Order o = selectedOrder();
+        if (o == null) return;
+        try {
+            store.advanceOrder(o);
+        } catch (IllegalStateException ex) {
+            showError(ex.getMessage(), "Cannot advance");
         }
-        store.advanceOrder(store.getOrders().get(ordersTable.convertRowIndexToModel(row)));
+        afterOrderChange(o);
+    }
+
+    /** State pattern in the GUI: the current state decides whether cancelling is allowed. */
+    void cancelSelected() {
+        Order o = selectedOrder();
+        if (o == null) return;
+        String reason = headless ? "customer changed their mind"
+                : JOptionPane.showInputDialog(this, "Reason for cancelling " + o.getId() + ":",
+                "customer changed their mind");
+        if (reason == null) return; // dialog closed
+        try {
+            store.cancelOrder(o, reason);
+        } catch (IllegalStateException ex) {
+            showError(ex.getMessage(), "Cannot cancel");
+        }
+        afterOrderChange(o);
+    }
+
+    private void afterOrderChange(Order o) {
+        int index = store.getOrders().indexOf(o);
         ordersModel.fireTableDataChanged();
-        ordersTable.setRowSelectionInterval(row, row);
+        inventoryModel.fireTableDataChanged();
+        if (index >= 0) ordersTable.setRowSelectionInterval(index, index);
         updateDashboard();
+        updateOrderHint();
+    }
+
+    private void updateOrderHint() {
+        Order o = selectedOrder();
+        if (o == null) {
+            orderHint.setText("Select an order to see what can happen next.");
+            cancelButton.setEnabled(false);
+        } else {
+            orderHint.setText(o.getId() + " - " + o.getStatus() + ": " + o.getHint());
+            cancelButton.setEnabled(o.canCancel());
+        }
+    }
+
+    private void showError(String message, String title) {
+        log("[GUI] " + message);
+        if (!headless) {
+            JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    void selectOrder(int index) {
+        ordersTable.setRowSelectionInterval(index, index);
+        updateOrderHint();
     }
 
     private void updateDashboard() {
-        dashboardLabel.setText(String.format("Dashboard:  %d paid orders   |   revenue $%,.2f   |   %d delivered",
-                store.getDashboard().getPaidOrders(), store.getDashboard().getRevenue(),
-                store.getDashboard().getDelivered()));
+        dashboardLabel.setText(String.format("Dashboard:  %d paid   |   %d cancelled   |   %d delivered   |   revenue $%,.2f",
+                store.getDashboard().getPaidOrders(), store.getDashboard().getCancelled(),
+                store.getDashboard().getDelivered(), store.getDashboard().getRevenue()));
     }
 
     private void refreshPickerLabels() {
@@ -696,7 +763,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
             if (v instanceof OrderStatus) {
                 OrderStatus s = (OrderStatus) v;
                 setFont(getFont().deriveFont(Font.BOLD));
-                if (!sel) setForeground(s == OrderStatus.DELIVERED ? OK : s == OrderStatus.PAID ? ACCENT : new Color(0xB26A00));
+                if (!sel) setForeground(s == OrderStatus.DELIVERED ? OK : s == OrderStatus.PAID ? ACCENT
+                        : s == OrderStatus.CANCELLED ? Color.GRAY : new Color(0xB26A00));
             }
             return this;
         }

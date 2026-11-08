@@ -1,14 +1,14 @@
 package com.byteforge.observer;
 
-/** Life cycle of a custom PC order. */
+/**
+ * Label of each step in the order life cycle. The behaviour of each step lives in
+ * the matching {@link com.byteforge.state.OrderState} class (State pattern);
+ * this enum is only what observers and the GUI display.
+ */
 public enum OrderStatus {
-    PLACED, PAID, ASSEMBLING, TESTING, SHIPPED, DELIVERED;
-
-    public OrderStatus next() {
-        return this == DELIVERED ? DELIVERED : values()[ordinal() + 1];
-    }
+    PLACED, PAID, ASSEMBLING, TESTING, SHIPPED, DELIVERED, CANCELLED;
 
     public boolean isFinal() {
-        return this == DELIVERED;
+        return this == DELIVERED || this == CANCELLED;
     }
 }

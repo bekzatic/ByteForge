@@ -24,7 +24,11 @@ ByteForge pattern tests
   PASS  Strategy   corporate tiers: 4 = 0%, 5 = 7%, 10 = 12%
   PASS  Strategy   seasonal sale is per unit and never negative
   PASS  Observer   all attached observers receive each change
-  PASS  Observer   order life cycle ends at DELIVERED
+  PASS  State      life cycle PLACED -> ... -> DELIVERED, then no further step
+  PASS  State      only PLACED and PAID orders can be cancelled
+  PASS  State      cancelling while ASSEMBLING is rejected with a reason
+  PASS  State      cancelled order cannot advance
+  PASS  Facade     cancelling a paid order refunds and restocks
   PASS  Observer   low-stock alert fires at the threshold
   PASS  Facade     checkout reserves stock, charges and notifies
   PASS  Facade     declined card leaves stock untouched
@@ -35,4 +39,4 @@ ByteForge pattern tests
   PASS  Command    a new command clears the redo stack
   PASS  Command    history is limited
 =======================
-34 passed, 0 failed
+38 passed, 0 failed

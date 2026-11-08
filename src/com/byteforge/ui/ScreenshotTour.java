@@ -86,17 +86,26 @@ public final class ScreenshotTour {
         f.placeOrder();
 
         f.setCustomer("Bad Card Inc.", "0000");
-        f.placeOrder(); // declined -> stock released
+        f.placeOrder(); // declined -> stock never touched
 
-        // advance orders to show Observer notifications
+        f.loadPreset(BuildDirector.Preset.OFFICE);
+        f.setAddOn(AddOnOption.OVERCLOCK, false);
+        f.setAddOn(AddOnOption.RGB, false);
+        f.setPricing(0);
+        f.setCustomer("Timur K.", "5521");
+        f.placeOrder();
+
+        // advance orders to show Observer notifications (State pattern decides each next step)
         java.util.List<Order> orders = f.store().getOrders();
-        for (int i = 0; i < 5; i++) f.store().advanceOrder(orders.get(0));
-        for (int i = 0; i < 2; i++) f.store().advanceOrder(orders.get(1));
-        f.store().advanceOrder(orders.get(2));
+        for (int i = 0; i < 4; i++) f.store().advanceOrder(orders.get(0)); // -> DELIVERED
+        for (int i = 0; i < 2; i++) f.store().advanceOrder(orders.get(1)); // -> TESTING
+        f.store().advanceOrder(orders.get(2));                             // -> ASSEMBLING
         f.refreshTables();
 
         f.tabs().setSelectedIndex(1);
-        f.ordersTable().setRowSelectionInterval(1, 1);
+        f.selectOrder(3);
+        f.cancelSelected();                                                // PAID -> CANCELLED
+        f.selectOrder(2);                                                  // hint: cannot cancel
         shot(f, new File(dir, "05_orders_observer.png"));
 
         f.tabs().setSelectedIndex(2);

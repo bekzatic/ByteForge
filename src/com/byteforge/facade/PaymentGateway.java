@@ -44,6 +44,22 @@ public class PaymentGateway {
         holds.remove(authId);
     }
 
+    private final Map<String, Double> refunds = new HashMap<>();
+
+    /** Returns captured money to the card. A transaction can be refunded only once. */
+    public synchronized void refund(String txId, double amount) {
+        if (txId == null || !txId.startsWith("TX-")) {
+            throw new IllegalArgumentException("Unknown transaction " + txId);
+        }
+        if (refunds.putIfAbsent(txId, amount) != null) {
+            throw new IllegalStateException("Transaction " + txId + " was already refunded");
+        }
+    }
+
+    public synchronized double refundedTotal() {
+        return refunds.values().stream().mapToDouble(Double::doubleValue).sum();
+    }
+
     public synchronized int openHolds() {
         return holds.size();
     }
