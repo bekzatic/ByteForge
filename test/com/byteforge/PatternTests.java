@@ -366,6 +366,13 @@ public final class PatternTests {
             eq(0, store.getPaymentGateway().openHolds());
             eq(0, store.getOrders().size());
         });
+        test("Facade", "restock adds units and rejects non-positive quantities", () -> {
+            Parts.Gpu gpu = sku("PH-2003");
+            store.restock(gpu, 3);
+            eq(5, Inventory.getInstance().getStock(gpu));
+            expect(IllegalArgumentException.class, () -> store.restock(gpu, 0));
+            check(log.stream().anyMatch(l -> l.contains("Restocked 3 x")), log.toString());
+        });
         test("Facade", "quote equals the order total", () -> {
             Computer c = preset(BuildDirector.Preset.OFFICE);
             PricingStrategy s = new PricingStrategies.CorporateBulk();

@@ -109,6 +109,8 @@ public final class ScreenshotTour {
         shot(f, new File(dir, "05_orders_observer.png"));
 
         f.tabs().setSelectedIndex(2);
+        f.restockPart(part("PH-2003"), 3);          // purchasing receives three RTX 4090
+        f.setInventoryFilter("", 0, true);          // show only parts that are running low
         shot(f, new File(dir, "06_inventory_singleton.png"));
         f.dispose();
     }

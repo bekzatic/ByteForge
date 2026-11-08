@@ -24,8 +24,9 @@ Requires JDK 11+.
 
 - `run.bat` - start the GUI
 - `run.bat --console` - console demo of all patterns
-- `run.bat --test` - 44 automated tests (no external libraries)
+- `run.bat --test` - 45 automated tests (no external libraries)
 - `run.bat --screenshots docs\screenshots` - regenerate report screenshots
+- Inventory tab: search, filter by category or low stock, and restock parts
 - IntelliJ IDEA: open the folder and use the run configurations
   *ByteForge GUI*, *ByteForge Console demo* or *ByteForge Tests*.
 

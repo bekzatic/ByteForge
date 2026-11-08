@@ -92,6 +92,16 @@ public class StoreFacade {
         return inventory.all();
     }
 
+    /** Purchasing receives a delivery from a supplier. */
+    public void restock(Component c, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+        inventory.restock(c, quantity);
+        log.accept(String.format("[Purchasing] Restocked %d x %s - now %d in stock.",
+                quantity, c.getName(), inventory.getStock(c)));
+    }
+
     // ------------------------------------------------------------ configuring
 
     public PCBuilder newBuild() {

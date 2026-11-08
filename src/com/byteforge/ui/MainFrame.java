@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -67,9 +68,16 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     private final OrdersModel ordersModel = new OrdersModel();
     private final JTable ordersTable = new JTable(ordersModel);
     private final JLabel dashboardLabel = new JLabel();
-    private final JLabel orderHint = new JLabel("Select an order to see what can happen next.");
-    private final JButton cancelButton = new JButton("Cancel selected order");
     private final InventoryModel inventoryModel = new InventoryModel();
+    private final JTable inventoryTable = new JTable(inventoryModel);
+    private TableRowSorter<InventoryModel> inventorySorter; // created once the store exists
+    private final JTextField inventorySearch = new JTextField(14);
+    private final JComboBox<String> inventoryTypeBox = new JComboBox<>();
+    private final JCheckBox lowStockOnly = new JCheckBox("Low stock only");
+    private final JSpinner restockQty = new JSpinner(new SpinnerNumberModel(5, 1, 100, 1));
+    private final JLabel inventoryCount = new JLabel();
+    private final JLabel orderHint =new JLabel("Select an order to see what can happen next.");
+    private final JButton cancelButton = new JButton("Cancel selected order");
     private final JTabbedPane tabs = new JTabbedPane();
 
     private Computer currentComputer;
@@ -286,19 +294,89 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     }
 
     private JComponent inventoryTab() {
-        JTable table = new JTable(inventoryModel);
-        table.setRowHeight(22);
-        table.setAutoCreateRowSorter(true);
-        table.getColumnModel().getColumn(2).setPreferredWidth(220);
-        table.getColumnModel().getColumn(3).setPreferredWidth(260);
-        table.setDefaultRenderer(Object.class, new StockRenderer());
+        inventoryTable.setRowHeight(22);
+        inventorySorter = new TableRowSorter<>(inventoryModel);
+        inventoryTable.setRowSorter(inventorySorter);
+        inventoryTable.getColumnModel().getColumn(2).setPreferredWidth(220);
+        inventoryTable.getColumnModel().getColumn(3).setPreferredWidth(260);
+        inventoryTable.setDefaultRenderer(Object.class, new StockRenderer());
+        inventoryTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // ---- toolbar: search, category filter, low-stock filter, restock
+        inventoryTypeBox.addItem("All categories");
+        for (ComponentType t : ComponentType.values()) inventoryTypeBox.addItem(t.label());
+        inventorySearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { applyInventoryFilter(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { applyInventoryFilter(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { applyInventoryFilter(); }
+        });
+        inventoryTypeBox.addActionListener(e -> applyInventoryFilter());
+        lowStockOnly.addActionListener(e -> applyInventoryFilter());
+        JButton restock = new JButton("Restock selected");
+        restock.addActionListener(e -> restockSelected());
+
+        JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        bar.add(new JLabel("Search:"));
+        bar.add(inventorySearch);
+        bar.add(inventoryTypeBox);
+        bar.add(lowStockOnly);
+        bar.add(Box.createHorizontalStrut(24));
+        bar.add(new JLabel("Quantity:"));
+        bar.add(restockQty);
+        bar.add(restock);
+        bar.add(Box.createHorizontalStrut(24));
+        bar.add(inventoryCount);
+
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(new EmptyBorder(6, 6, 6, 6));
-        p.add(new JScrollPane(table), BorderLayout.CENTER);
+        p.add(bar, BorderLayout.NORTH);
+        p.add(new JScrollPane(inventoryTable), BorderLayout.CENTER);
         JLabel note = new JLabel("  Single shared Inventory instance (Singleton). Rows in red are at or below "
-                + Inventory.LOW_STOCK_THRESHOLD + " units.");
+                + Inventory.LOW_STOCK_THRESHOLD + " units; every stock change notifies the observers.");
         p.add(note, BorderLayout.SOUTH);
+        applyInventoryFilter();
         return p;
+    }
+
+    void applyInventoryFilter() {
+        String text = inventorySearch.getText().trim().toLowerCase();
+        String type = inventoryTypeBox.getSelectedIndex() <= 0 ? null : (String) inventoryTypeBox.getSelectedItem();
+        boolean low = lowStockOnly.isSelected();
+        inventorySorter.setRowFilter(new RowFilter<InventoryModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends InventoryModel, ? extends Integer> e) {
+                Component c = store.getAllParts().get(e.getIdentifier());
+                if (type != null && !c.getType().label().equals(type)) return false;
+                if (low && store.getStock(c) > Inventory.LOW_STOCK_THRESHOLD) return false;
+                if (text.isEmpty()) return true;
+                return (c.getSku() + " " + c.getName() + " " + c.getSpecs()).toLowerCase().contains(text);
+            }
+        });
+        inventoryCount.setText(inventoryTable.getRowCount() + " of " + store.getAllParts().size() + " parts shown");
+        inventoryCount.revalidate();
+    }
+
+    private void restockSelected() {
+        int row = inventoryTable.getSelectedRow();
+        if (row < 0) {
+            showError("Select a part in the table first.", "Restock");
+            return;
+        }
+        restockPart(store.getAllParts().get(inventoryTable.convertRowIndexToModel(row)), (Integer) restockQty.getValue());
+    }
+
+    void restockPart(Component c, int qty) {
+        store.restock(c, qty);
+        inventoryModel.fireTableDataChanged();
+        applyInventoryFilter();
+        refreshPickerLabels();
+    }
+
+    void setInventoryFilter(String text, int typeIndex, boolean lowOnly) {
+        inventorySearch.setText(text);
+        inventoryTypeBox.setSelectedIndex(typeIndex);
+        lowStockOnly.setSelected(lowOnly);
+        applyInventoryFilter();
     }
 
     // =============================================================== behaviour
