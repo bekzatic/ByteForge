@@ -197,6 +197,7 @@ classDiagram
     +quote(...) Quote
     +checkout(...) Order
     +advanceOrder(Order)
+    +cancelOrder(Order, String)
   }
   class Inventory { &lt;&lt;Singleton&gt;&gt; }
   class ComponentFactory
@@ -582,13 +583,14 @@ public static class Student implements PricingStrategy {
   <div class="uml"><div class="mermaid">
 classDiagram
   class Order {
-    -OrderStatus status
+    -OrderState state
     -List~OrderObserver~ observers
     +attach(OrderObserver)
     +detach(OrderObserver)
-    +setStatus(OrderStatus)
     +advance()
-    -notifyObservers(old, new)
+    +cancel(String)
+    +changeState(OrderState)
+    +getStatus() OrderStatus
   }
   class OrderObserver {
     &lt;&lt;interface&gt;&gt;
@@ -609,7 +611,7 @@ classDiagram
     CANCELLED
   }
   Order --&gt; "*" OrderObserver
-  Order --&gt; OrderStatus
+  Order ..&gt; OrderStatus : reports
   OrderObserver &lt;|.. CustomerNotifier
   OrderObserver &lt;|.. AssemblyDepartment
   OrderObserver &lt;|.. SalesDashboard
@@ -619,12 +621,13 @@ classDiagram
 <pre>public class Order {
     private final List&lt;OrderObserver&gt; observers = new CopyOnWriteArrayList&lt;&gt;();
     public void attach(OrderObserver o) { observers.add(o); }
+    public void detach(OrderObserver o) { observers.remove(o); }
 
-    public void setStatus(OrderStatus newStatus) {
-        OrderStatus old = this.status;
-        if (old == newStatus) return;
-        this.status = newStatus;
-        for (OrderObserver o : observers) o.onStatusChanged(this, old, newStatus);
+    /** Called by the State objects (Section 3.10) on every step: push the change to all observers. */
+    public void changeState(OrderState next) {
+        OrderStatus old = state.getStatus();
+        state = next;
+        for (OrderObserver o : observers) o.onStatusChanged(this, old, next.getStatus());
     }
 }
 
@@ -635,13 +638,15 @@ public static class AssemblyDepartment implements OrderObserver {
                     + order.getProduct().getDescription() + "' for assembly");
         else if (newStatus == OrderStatus.TESTING)
             log.accept("[Workshop] Running 4h stress test on " + order.getId());
+        else if (newStatus == OrderStatus.CANCELLED)
+            log.accept("[Workshop] Removed " + order.getId() + " from the assembly queue.");
     }
 }</pre>
 
   <!-- ---------------- Facade -->
   <h2>3.8 Facade &mdash; <code>StoreFacade</code> <span class="tag">Structural</span></h2>
   <p><b>Problem.</b> Placing one order involves many steps across many subsystems: decorate the PC with add-ons, price it with the right strategy, authorize the card, reserve every part in the inventory, capture the payment (or release the card hold if stock is short), create the order, attach its observers and mark it paid. Putting this logic into Swing event handlers would couple the UI to every class in the system.</p>
-  <p><b>Solution.</b> <code>StoreFacade</code> exposes a small API &mdash; <code>loadCatalog()</code>, <code>getParts()</code>, <code>preset()</code>, <code>quote()</code>, <code>checkout()</code>, <code>advanceOrder()</code> &mdash; and hides the subsystems behind it. Both the Swing window and the console demo use only this class. The subsystems remain accessible on their own (e.g. unit tests can use <code>PCBuilder</code> directly), which is the usual property of a facade.</p>
+  <p><b>Solution.</b> <code>StoreFacade</code> exposes a small API &mdash; <code>loadCatalog()</code>, <code>getParts()</code>, <code>preset()</code>, <code>quote()</code>, <code>checkout()</code>, <code>advanceOrder()</code>, <code>cancelOrder()</code>, <code>orderDetails()</code>, <code>restock()</code> &mdash; and hides the subsystems behind it. The Swing window, the console demo and the tests use only this class. The subsystems remain accessible on their own (e.g. unit tests can use <code>PCBuilder</code> directly), which is the usual property of a facade.</p>
   <div class="uml"><div class="mermaid">
 classDiagram
   direction LR
@@ -654,6 +659,9 @@ classDiagram
     +quote(Computer, Set, PricingStrategy, int) Quote
     +checkout(String, String, Computer, Set, PricingStrategy, int) Order
     +advanceOrder(Order)
+    +cancelOrder(Order, String)
+    +orderDetails(Order) String
+    +restock(Component, int)
   }
   MainFrame --&gt; StoreFacade
   ConsoleDemo --&gt; StoreFacade
@@ -683,9 +691,10 @@ classDiagram
     String tx = payments.capture(auth);
 
     Order order = new Order(customer, q.getProduct(), quantity, pricing);
+    order.setPaymentId(tx);
     orderObservers.forEach(order::attach);                          // Observer
     orders.add(order);
-    order.setStatus(OrderStatus.PAID);                              // notifies everyone
+    order.advance();                          // PLACED -&gt; PAID (State), notifies everyone
     return order;
 }</pre>
 
@@ -956,7 +965,7 @@ sequenceDiagram
   F-&gt;&gt;G: capture(authorization)
   G--&gt;&gt;F: transaction id
   F-&gt;&gt;O: new Order + attach(observers)
-  F-&gt;&gt;O: setStatus(PAID)
+  F-&gt;&gt;O: advance() PLACED to PAID
   O-&gt;&gt;L: onStatusChanged (Email, Workshop, Dashboard)
   UI-&gt;&gt;F: advanceOrder(order)
   F-&gt;&gt;O: advance()
