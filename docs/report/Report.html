@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ByteForge - Final Project Report</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --ink:#1b2430; --muted:#5b6675; --accent:#2f6feb; --rule:#d8dee8; --code:#f5f7fa; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); font-size: 11pt; line-height: 1.5; margin: 0; background:#fff; }
+  h1 { font-size: 20pt; margin: 0 0 6pt; color: #0d1b2a; border-bottom: 2px solid var(--accent); padding-bottom: 4pt; }
+  h2 { font-size: 14pt; margin: 16pt 0 6pt; color: #0d1b2a; }
+  h3 { font-size: 12pt; margin: 12pt 0 4pt; color: var(--accent); }
+  p { margin: 0 0 7pt; text-align: justify; }
+  ul, ol { margin: 0 0 8pt 18pt; padding: 0; }
+  li { margin-bottom: 2pt; }
+  .chapter { page-break-before: always; }
+  table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt; font-size: 10pt; }
+  th, td { border: 1px solid var(--rule); padding: 4pt 6pt; vertical-align: top; text-align: left; }
+  th { background: #eef3fb; }
+  pre { background: var(--code); border: 1px solid var(--rule); border-left: 3px solid var(--accent); padding: 7pt 9pt; font-family: Consolas, "Courier New", monospace; font-size: 8.4pt; line-height: 1.35; white-space: pre-wrap; margin: 4pt 0 10pt; page-break-inside: avoid; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: var(--code); padding: 0 2pt; }
+  figure { margin: 8pt 0 12pt; text-align: center; page-break-inside: avoid; }
+  figure img { max-width: 100%; border: 1px solid var(--rule); }
+  figcaption { font-size: 9.5pt; color: var(--muted); margin-top: 3pt; }
+  .mermaid { text-align: center; margin: 4pt 0; }
+  .mermaid svg { max-width: 100% !important; height: auto; }
+  .uml { page-break-inside: avoid; border: 1px solid var(--rule); padding: 6pt; margin: 6pt 0 12pt; }
+  .tag { display: inline-block; font-size: 8.5pt; background: #eef3fb; color: var(--accent); border-radius: 3pt; padding: 0 5pt; font-weight: 600; }
+  /* title page */
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .top { text-align: center; color: var(--muted); font-size: 11pt; }
+  .cover .mid { text-align: center; }
+  .cover .mid .t1 { font-size: 13pt; color: var(--muted); letter-spacing: 1pt; text-transform: uppercase; }
+  .cover .mid .t2 { font-size: 30pt; font-weight: 700; color: #0d1b2a; margin: 8pt 0; }
+  .cover .mid .t3 { font-size: 14pt; color: var(--accent); }
+  .cover table { width: 70%; margin: 0 auto; font-size: 11pt; }
+  .cover .bottom { text-align: center; color: var(--muted); }
+  .toc li { list-style: none; margin: 3pt 0; }
+  .toc { margin-left: 0; }
+  .note { background: #fff8e6; border: 1px solid #f0d58a; padding: 6pt 9pt; font-size: 10pt; margin: 6pt 0 10pt; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+</head>
+<body>
+
+<!-- ============================================================ COVER -->
+<section class="cover">
+  <div class="top">
+    [University name]<br>
+    Faculty of [Faculty] &middot; Department of [Department]<br>
+    Course: Software Design Patterns
+  </div>
+  <div class="mid">
+    <div class="t1">Final Project Report</div>
+    <div class="t2">ByteForge</div>
+    <div class="t3">Custom PC Configurator &amp; Computer Store<br>built with nine cooperating design patterns</div>
+  </div>
+  <table>
+    <tr><th>Team members</th><th>Patterns implemented</th></tr>
+    <tr><td>Student 1: [Full name], [group]</td><td>Singleton, Factory, Adapter</td></tr>
+    <tr><td>Student 2: [Full name], [group]</td><td>Builder (+ Director), Decorator, Command</td></tr>
+    <tr><td>Student 3: [Full name], [group]</td><td>Strategy, Observer, Facade</td></tr>
+    <tr><td>Supervisor</td><td>[Senior Lecturer name]</td></tr>
+  </table>
+  <div class="bottom">[City], 2026</div>
+</section>
+
+<!-- ============================================================ TOC -->
+<section class="chapter">
+  <h1>Contents</h1>
+  <ol class="toc">
+    <li>1. Introduction</li>
+    <li>2. System overview and architecture</li>
+    <li>3. Design patterns (body)
+      <ol class="toc" style="margin-left:14pt">
+        <li>3.1 Singleton &mdash; Inventory</li>
+        <li>3.2 Factory &mdash; ComponentFactory</li>
+        <li>3.3 Adapter &mdash; supplier feeds</li>
+        <li>3.4 Builder &mdash; PCBuilder and BuildDirector</li>
+        <li>3.5 Decorator &mdash; service add-ons</li>
+        <li>3.6 Strategy &mdash; pricing policies</li>
+        <li>3.7 Observer &mdash; order and stock events</li>
+        <li>3.8 Facade &mdash; StoreFacade</li>
+        <li>3.9 Command &mdash; undo / redo</li>
+      </ol>
+    </li>
+    <li>4. How the patterns cooperate</li>
+    <li>5. Application screenshots</li>
+    <li>6. Testing and results</li>
+    <li>7. Conclusion</li>
+    <li>8. Further work</li>
+    <li>Appendix A. Project structure and how to run</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 1 INTRO -->
+<section class="chapter">
+  <h1>1. Introduction</h1>
+
+  <h2>1.1 Problem statement</h2>
+  <p>Buying a custom-built computer is error-prone. A processor only fits a motherboard with the same socket, memory must match the board's DDR generation, a long graphics card may not fit into a compact case, and an under-sized power supply makes the whole system unstable. Small computer shops usually check this by hand, take their part lists from several wholesalers in different formats, and price the same machine differently for students, companies and seasonal campaigns.</p>
+  <p><b>ByteForge</b> is a desktop application for such a shop. A customer chooses parts (or starts from a ready-made preset), the system instantly checks hardware compatibility and power consumption, lets the customer add services such as an operating-system installation or an extended warranty, calculates the price with the correct pricing policy, and then tracks the order from payment through assembly, testing and delivery.</p>
+
+  <h2>1.2 Objectives</h2>
+  <ul>
+    <li>Build one cohesive Java application in which <b>at least six</b> design patterns from the course work together. We implemented <b>nine</b>: Singleton, Factory, Adapter, Builder, Decorator, Strategy, Observer, Facade and Command.</li>
+    <li>Each team member implements at least two patterns (see the cover page for the split).</li>
+    <li>Show every pattern running in a graphical user interface and in a console demonstration, and verify it with automated tests.</li>
+    <li>Document the design with UML class and sequence diagrams.</li>
+  </ul>
+
+  <h2>1.3 Technologies</h2>
+  <table>
+    <tr><th>Item</th><th>Choice</th></tr>
+    <tr><td>Language</td><td>Java 11+ (developed and tested with JDK 17, Temurin)</td></tr>
+    <tr><td>User interface</td><td>Java Swing with the Nimbus look and feel</td></tr>
+    <tr><td>Build</td><td>Plain <code>javac</code> (no external libraries); <code>run.bat</code> script; ready-made IntelliJ IDEA project with run configurations</td></tr>
+    <tr><td>Testing</td><td>Own dependency-free test runner (<code>run.bat --test</code>), 34 automated tests</td></tr>
+    <tr><td>Diagrams</td><td>UML class and sequence diagrams (Mermaid notation)</td></tr>
+    <tr><td>Size</td><td>39 source files, about 3,300 lines of code, 10 packages</td></tr>
+  </table>
+
+  <h2>1.4 Main features</h2>
+  <ul>
+    <li>Catalog of 23 real-world parts imported from two simulated suppliers with incompatible data formats (CSV text and JSON-like REST data).</li>
+    <li>Three presets (Office Starter, Gaming Pro, Creator Workstation) and free part selection.</li>
+    <li>Live compatibility check: CPU socket, RAM type, number of RAM modules, motherboard form factor vs. case, GPU length vs. case clearance, missing integrated graphics, PSU wattage with 25&nbsp;% headroom.</li>
+    <li>Stackable services: Windows installation, ARGB lighting kit, overclocking, extended warranty (priced as a percentage of everything it wraps).</li>
+    <li>Four pricing policies: regular, student, corporate bulk tiers and a seasonal sale.</li>
+    <li>Unlimited <b>undo / redo</b> (Ctrl+Z / Ctrl+Y) of every configuration change; loading a preset is undone as one step.</li>
+    <li>Checkout with a realistic two-step payment: the card is <i>authorized</i> first, stock is reserved, then the payment is <i>captured</i>. A declined card never touches the inventory; if stock is short, the card hold is released.</li>
+    <li>Order tracking with notifications to the customer, the workshop and a sales dashboard; low-stock alerts to purchasing.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 2 OVERVIEW -->
+<section class="chapter">
+  <h1>2. System overview and architecture</h1>
+  <p>The code is organised by responsibility, and each package is home to one pattern. The user interface (<code>ui</code>) and the console demo talk <i>only</i> to <code>StoreFacade</code>; the facade coordinates every other subsystem.</p>
+
+  <table>
+    <tr><th>Package</th><th>Responsibility</th><th>Pattern</th></tr>
+    <tr><td><code>model</code></td><td>Hardware parts: <code>Component</code>, <code>Cpu</code>, <code>Motherboard</code>, <code>Ram</code>, <code>Gpu</code>, <code>Storage</code>, <code>PowerSupply</code>, <code>PcCase</code></td><td>&mdash;</td></tr>
+    <tr><td><code>adapter</code></td><td>Import parts from suppliers with foreign formats</td><td>Adapter</td></tr>
+    <tr><td><code>factory</code></td><td>Create the right <code>Component</code> subclass from a neutral record</td><td>Factory</td></tr>
+    <tr><td><code>inventory</code></td><td>The single stock ledger of the shop</td><td>Singleton (+ Observer subject)</td></tr>
+    <tr><td><code>builder</code></td><td>Assemble and validate a <code>Computer</code>; presets</td><td>Builder + Director</td></tr>
+    <tr><td><code>decorator</code></td><td>Add optional paid services to a computer</td><td>Decorator</td></tr>
+    <tr><td><code>strategy</code></td><td>Interchangeable pricing policies</td><td>Strategy</td></tr>
+    <tr><td><code>observer</code></td><td>Orders, order status and event listeners</td><td>Observer</td></tr>
+    <tr><td><code>facade</code></td><td>One simple API for the UI: catalog, quote, checkout, tracking</td><td>Facade</td></tr>
+    <tr><td><code>command</code></td><td>Undoable configuration changes and their history</td><td>Command</td></tr>
+    <tr><td><code>ui</code></td><td>Swing window and the screenshot tour</td><td>&mdash;</td></tr>
+    <tr><td><code>test/</code></td><td>34 automated tests for all patterns</td><td>&mdash;</td></tr>
+  </table>
+
+  <div class="uml">
+  <div class="mermaid">
+flowchart LR
+  UI["Swing UI / Console demo"] --&gt; F["StoreFacade<br/>(Facade)"]
+  UI --&gt; CMD["CommandHistory + commands<br/>(Command)"]
+  F --&gt; AD["SupplierFeed adapters<br/>(Adapter)"]
+  AD --&gt; FA["ComponentFactory<br/>(Factory)"]
+  FA --&gt; INV["Inventory<br/>(Singleton)"]
+  F --&gt; INV
+  F --&gt; B["PCBuilder + BuildDirector<br/>(Builder)"]
+  B --&gt; INV
+  F --&gt; D["BasePC + AddOn decorators<br/>(Decorator)"]
+  F --&gt; S["PricingStrategy<br/>(Strategy)"]
+  F --&gt; PG["PaymentGateway"]
+  F --&gt; O["Order + observers<br/>(Observer)"]
+  INV -. stock events .-&gt; LS["LowStockAlert<br/>(Observer)"]
+  </div>
+  </div>
+  <p style="text-align:center;font-size:9.5pt;color:#5b6675">Figure 2.1 &ndash; High-level architecture: which pattern lives where and who calls whom.</p>
+
+  <h2>2.1 Overall class diagram</h2>
+  <div class="uml">
+  <div class="mermaid">
+classDiagram
+  direction LR
+  class StoreFacade {
+    +loadCatalog()
+    +getParts(type) List~Component~
+    +preset(Preset) PCBuilder
+    +decorate(Computer, Set~AddOnOption~) PCProduct
+    +quote(...) Quote
+    +checkout(...) Order
+    +advanceOrder(Order)
+  }
+  class Inventory { &lt;&lt;Singleton&gt;&gt; }
+  class ComponentFactory
+  class SupplierFeed { &lt;&lt;interface&gt;&gt; }
+  class PCBuilder
+  class BuildDirector
+  class Computer
+  class PCProduct { &lt;&lt;interface&gt;&gt; }
+  class PricingStrategy { &lt;&lt;interface&gt;&gt; }
+  class Order
+  class OrderObserver { &lt;&lt;interface&gt;&gt; }
+  class PaymentGateway
+  StoreFacade --&gt; Inventory
+  StoreFacade --&gt; ComponentFactory
+  StoreFacade ..&gt; SupplierFeed
+  StoreFacade --&gt; BuildDirector
+  StoreFacade ..&gt; PCProduct
+  StoreFacade ..&gt; PricingStrategy
+  StoreFacade --&gt; PaymentGateway
+  StoreFacade --&gt; "*" Order
+  StoreFacade --&gt; "*" OrderObserver
+  BuildDirector ..&gt; PCBuilder
+  PCBuilder ..&gt; Computer : builds
+  Order --&gt; PCProduct
+  Order --&gt; PricingStrategy
+  Order --&gt; "*" OrderObserver
+  Inventory ..&gt; ComponentFactory
+  Inventory ..&gt; SupplierFeed
+  </div>
+  </div>
+  <p style="text-align:center;font-size:9.5pt;color:#5b6675">Figure 2.2 &ndash; Main classes and their relations (details per pattern in Chapter 3).</p>
+</section>
+
+<!-- ============================================================ 3 PATTERNS -->
+<section class="chapter">
+  <h1>3. Design patterns</h1>
+  <p>For every pattern we describe the problem it solves in ByteForge, the participating classes, a UML class diagram and the key part of the source code. Full source code is in the attached ZIP archive.</p>
+
+  <table>
+    <tr><th>#</th><th>Pattern</th><th>Category</th><th>Main classes</th><th>Author</th></tr>
+    <tr><td>1</td><td>Singleton</td><td>Creational</td><td><code>Inventory</code></td><td>Student 1</td></tr>
+    <tr><td>2</td><td>Factory</td><td>Creational</td><td><code>ComponentFactory</code>, <code>ComponentRecord</code></td><td>Student 1</td></tr>
+    <tr><td>3</td><td>Adapter</td><td>Structural</td><td><code>SupplierFeed</code>, <code>NovaTechCsvAdapter</code>, <code>PartHubApiAdapter</code></td><td>Student 1</td></tr>
+    <tr><td>4</td><td>Builder</td><td>Creational</td><td><code>PCBuilder</code>, <code>Computer</code>, <code>BuildDirector</code></td><td>Student 2</td></tr>
+    <tr><td>5</td><td>Decorator</td><td>Structural</td><td><code>PCProduct</code>, <code>BasePC</code>, <code>AddOnDecorator</code>, <code>AddOns.*</code></td><td>Student 2</td></tr>
+    <tr><td>6</td><td>Strategy</td><td>Behavioral</td><td><code>PricingStrategy</code>, <code>PricingStrategies.*</code></td><td>Student 3</td></tr>
+    <tr><td>7</td><td>Observer</td><td>Behavioral</td><td><code>Order</code>, <code>OrderObserver</code>, <code>StockObserver</code>, <code>Listeners.*</code></td><td>Student 3</td></tr>
+    <tr><td>8</td><td>Facade</td><td>Structural</td><td><code>StoreFacade</code></td><td>Student 3</td></tr>
+    <tr><td>9</td><td>Command</td><td>Behavioral</td><td><code>Command</code>, <code>ConfigCommands.*</code>, <code>CommandHistory</code></td><td>Student 2</td></tr>
+  </table>
+
+  <!-- ---------------- Singleton -->
+  <h2>3.1 Singleton &mdash; <code>Inventory</code> <span class="tag">Creational</span></h2>
+  <p><b>Problem.</b> The shop has exactly one stock of physical parts. The configurator, the checkout, the inventory screen and the low-stock alert must all read and change the <i>same</i> quantities; two separate copies would let two customers buy the last RTX&nbsp;4090.</p>
+  <p><b>Solution.</b> <code>Inventory</code> has a private constructor and is reachable only through <code>getInstance()</code>. We use the <i>initialization-on-demand holder</i> idiom: the instance is created lazily the first time <code>Holder</code> is touched, and the JVM's class-loading rules make this thread-safe without <code>synchronized</code> on every call. All state-changing methods are <code>synchronized</code>, and <code>reserve()</code> is atomic: either every unit of an order is taken or nothing changes.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  class Inventory {
+    &lt;&lt;Singleton&gt;&gt;
+    -Map~String,Component~ components
+    -Map~String,Integer~ stock
+    -List~StockObserver~ observers
+    -Inventory()
+    +getInstance()$ Inventory
+    +importFrom(SupplierFeed, ComponentFactory) int
+    +byType(ComponentType) List~Component~
+    +findBySku(String) Component
+    +getStock(Component) int
+    +reserve(List~Component~)
+    +restock(Component, int)
+    +addObserver(StockObserver)
+  }
+  class Holder {
+    -INSTANCE$ Inventory
+  }
+  Inventory *-- Holder : nested class
+  Inventory --&gt; "*" StockObserver
+  </div></div>
+<pre>public final class Inventory {
+    private Inventory() { }                       // nobody else can call "new"
+
+    private static final class Holder {           // loaded only on first use
+        private static final Inventory INSTANCE = new Inventory();
+    }
+    public static Inventory getInstance() { return Holder.INSTANCE; }
+
+    /** Either every unit is taken from stock or, if anything is short, nothing changes. */
+    public synchronized void reserve(List&lt;Component&gt; parts) {
+        Map&lt;Component, Integer&gt; needed = new LinkedHashMap&lt;&gt;();
+        for (Component c : parts) needed.merge(c, 1, Integer::sum);
+        for (Map.Entry&lt;Component, Integer&gt; e : needed.entrySet())
+            if (getStock(e.getKey()) &lt; e.getValue())
+                throw new IllegalStateException("Not enough stock for " + e.getKey().getName());
+        for (Map.Entry&lt;Component, Integer&gt; e : needed.entrySet())
+            changeStock(e.getKey(), -e.getValue());   // notifies StockObservers
+    }
+}</pre>
+
+  <!-- ---------------- Factory -->
+  <h2>3.2 Factory &mdash; <code>ComponentFactory</code> <span class="tag">Creational</span></h2>
+  <p><b>Problem.</b> Supplier data arrives as generic records ("type = GPU, lengthMm = 267 ..."). Seven concrete part classes exist, each with its own constructor and attributes. If the inventory loader called these constructors directly it would contain a large <code>if/else</code> over types and would have to change for every new part type.</p>
+  <p><b>Solution.</b> <code>ComponentFactory.create(ComponentRecord)</code> is the only place that knows which concrete class matches a <code>ComponentType</code> and how to read its attributes. Clients receive the abstract <code>Component</code>. Creators are registered in an <code>EnumMap</code>, so a new part type (e.g. a CPU cooler) is added by registering one more creator function.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class ComponentFactory {
+    -Map~ComponentType, Function~ creators
+    +create(ComponentRecord) Component
+  }
+  class ComponentRecord {
+    +getType() ComponentType
+    +attr(String) String
+    +intAttr(String) int
+  }
+  class Component {
+    &lt;&lt;abstract&gt;&gt;
+    +getType() ComponentType
+    +getSpecs() String
+    +getPrice() double
+    +getPowerDraw() int
+  }
+  Component &lt;|-- Cpu
+  Component &lt;|-- Motherboard
+  Component &lt;|-- Ram
+  Component &lt;|-- Gpu
+  Component &lt;|-- Storage
+  Component &lt;|-- PowerSupply
+  Component &lt;|-- PcCase
+  ComponentFactory ..&gt; ComponentRecord : reads
+  ComponentFactory ..&gt; Component : creates
+  Inventory ..&gt; ComponentFactory : uses
+  </div></div>
+<pre>public final class ComponentFactory {
+    private final Map&lt;ComponentType, Function&lt;ComponentRecord, Component&gt;&gt; creators =
+            new EnumMap&lt;&gt;(ComponentType.class);
+
+    public ComponentFactory() {
+        creators.put(ComponentType.CPU, r -&gt; new Parts.Cpu(
+                r.getSku(), r.getBrand(), r.getModel(), r.getPrice(), r.intAttr("tdp"),
+                r.attr("socket"), r.intAttr("cores"), r.doubleAttr("ghz")));
+        creators.put(ComponentType.GPU, r -&gt; new Parts.Gpu(
+                r.getSku(), r.getBrand(), r.getModel(), r.getPrice(), r.intAttr("tdp"),
+                r.intAttr("vramGb"), r.intAttr("lengthMm")));
+        // ... MOTHERBOARD, RAM, STORAGE, PSU, CASE
+    }
+
+    public Component create(ComponentRecord record) {
+        Function&lt;ComponentRecord, Component&gt; creator = creators.get(record.getType());
+        if (creator == null) throw new IllegalArgumentException("No creator for " + record.getType());
+        return creator.apply(record);
+    }
+}</pre>
+
+  <!-- ---------------- Adapter -->
+  <h2>3.3 Adapter &mdash; supplier feeds <span class="tag">Structural</span></h2>
+  <p><b>Problem.</b> The shop buys from two suppliers whose code we cannot change. <i>NovaTech Distribution</i> (a legacy wholesaler) only exports semicolon-separated text. <i>PartHub</i> (a modern REST API) returns JSON-like maps, uses its own category names ("graphics", "chassis"), prices in cents and different spec keys ("boardPower" instead of "tdp").</p>
+  <p><b>Solution.</b> The store defines the target interface <code>SupplierFeed</code>. Two <i>object adapters</i> wrap the incompatible services and translate their data into neutral <code>ComponentRecord</code>s. <code>Inventory.importFrom()</code> works with any <code>SupplierFeed</code>, so a third supplier needs only a new adapter.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class SupplierFeed {
+    &lt;&lt;interface&gt;&gt;
+    +getSupplierName() String
+    +fetchRecords() List~ComponentRecord~
+  }
+  class NovaTechCsvAdapter {
+    -NovaTechCsvService service
+    +fetchRecords() List~ComponentRecord~
+  }
+  class PartHubApiAdapter {
+    -PartHubApiClient client
+    +fetchRecords() List~ComponentRecord~
+    -mapCategory(String)$ ComponentType
+    -mapSpecs(ComponentType, Map)$ Map
+  }
+  class NovaTechCsvService {
+    &lt;&lt;Adaptee&gt;&gt;
+    +exportCatalogCsv() String
+  }
+  class PartHubApiClient {
+    &lt;&lt;Adaptee&gt;&gt;
+    +getProducts() List~Map~
+  }
+  SupplierFeed &lt;|.. NovaTechCsvAdapter
+  SupplierFeed &lt;|.. PartHubApiAdapter
+  NovaTechCsvAdapter o--&gt; NovaTechCsvService
+  PartHubApiAdapter o--&gt; PartHubApiClient
+  Inventory ..&gt; SupplierFeed : importFrom()
+  </div></div>
+<pre>public class PartHubApiAdapter implements SupplierFeed {
+    private final PartHubApiClient client;                  // the adaptee
+    public PartHubApiAdapter(PartHubApiClient client) { this.client = client; }
+
+    @Override public List&lt;ComponentRecord&gt; fetchRecords() {
+        List&lt;ComponentRecord&gt; records = new ArrayList&lt;&gt;();
+        for (Map&lt;String, Object&gt; p : client.getProducts()) {
+            ComponentType type = mapCategory((String) p.get("category")); // "graphics" -&gt; GPU
+            records.add(new ComponentRecord((String) p.get("id"), type,
+                    (String) p.get("manufacturer"), (String) p.get("name"),
+                    ((Integer) p.get("priceCents")) / 100.0,              // cents -&gt; dollars
+                    (Integer) p.get("qty"),
+                    mapSpecs(type, (Map&lt;String, String&gt;) p.get("specs"))));   // rename keys
+        }
+        return records;
+    }
+}</pre>
+
+  <!-- ---------------- Builder -->
+  <h2>3.4 Builder &mdash; <code>PCBuilder</code>, <code>Computer</code>, <code>BuildDirector</code> <span class="tag">Creational</span></h2>
+  <p><b>Problem.</b> A computer has eight kinds of parts; some are optional (graphics card), some repeat (RAM modules, drives). A constructor with ten parameters would be unreadable, and an object built field-by-field with setters could exist in an invalid state (e.g. Intel CPU on an AMD board).</p>
+  <p><b>Solution.</b> <code>PCBuilder</code> collects parts through a fluent API. <code>build()</code> runs the <code>CompatibilityChecker</code> and only then creates an <i>immutable</i> <code>Computer</code> (its constructor is package-private, so the builder is the only way to obtain one). The GUI calls <code>validate()</code> after every change to show problems live. <code>BuildDirector</code> plays the Director role: it knows the recipes of the shop's three presets and returns a pre-filled builder that the customer can still modify.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class BuildDirector {
+    -Inventory inventory
+    +construct(Preset) PCBuilder
+  }
+  class PCBuilder {
+    +name(String) PCBuilder
+    +cpu(Cpu) PCBuilder
+    +motherboard(Motherboard) PCBuilder
+    +ram(Ram, int) PCBuilder
+    +gpu(Gpu) PCBuilder
+    +addDrive(Storage) PCBuilder
+    +psu(PowerSupply) PCBuilder
+    +pcCase(PcCase) PCBuilder
+    +validate() List~String~
+    +build() Computer
+  }
+  class Computer {
+    &lt;&lt;immutable&gt;&gt;
+    ~Computer(PCBuilder)
+    +allParts() List~Component~
+    +getHardwarePrice() double
+    +getEstimatedPowerDraw() int
+    +summary() String
+  }
+  class CompatibilityChecker {
+    +check(PCBuilder)$ List~String~
+    +recommendedPsuWatts(List)$ int
+  }
+  class IncompatibleBuildException
+  BuildDirector ..&gt; PCBuilder : drives
+  PCBuilder ..&gt; Computer : creates
+  PCBuilder ..&gt; CompatibilityChecker
+  PCBuilder ..&gt; IncompatibleBuildException : throws
+  </div></div>
+<pre>// Director: a preset recipe
+private PCBuilder gaming() {
+    return new PCBuilder()
+            .name("Gaming Pro")
+            .cpu(inventory.findBySku("NT-CPU-02"))          // Ryzen 7 7800X3D
+            .motherboard(inventory.findBySku("NT-MB-01"))   // B650, AM5, DDR5
+            .ram(inventory.findBySku("PH-1001"), 2)         // 2 x 16 GB DDR5
+            .gpu(inventory.findBySku("PH-2002"))            // Radeon RX 7800 XT
+            .addDrive(inventory.findBySku("PH-3001"))
+            .psu(inventory.findBySku("NT-PSU-02"))          // 850 W
+            .pcCase(inventory.findBySku("PH-4001"));
+}
+
+// Builder: the product exists only if it is valid
+public Computer build() {
+    List&lt;String&gt; issues = validate();
+    if (!issues.isEmpty()) throw new IncompatibleBuildException(issues);
+    return new Computer(this);
+}
+
+// One of the compatibility rules
+if (b.gpu != null &amp;&amp; b.pcCase != null &amp;&amp; b.gpu.getLengthMm() &gt; b.pcCase.getMaxGpuLengthMm())
+    issues.add("Graphics card is " + b.gpu.getLengthMm() + " mm but the case fits only "
+            + b.pcCase.getMaxGpuLengthMm() + " mm.");</pre>
+
+  <!-- ---------------- Decorator -->
+  <h2>3.5 Decorator &mdash; service add-ons <span class="tag">Structural</span></h2>
+  <p><b>Problem.</b> On top of the hardware the customer may order any combination of four services. Creating a subclass for every combination ("PC with Windows and RGB but no warranty") would mean 2<sup>4</sup> = 16 classes, and services must be chosen at runtime.</p>
+  <p><b>Solution.</b> <code>PCProduct</code> is the common interface. <code>BasePC</code> (the concrete component) prices the hardware plus assembly. <code>AddOnDecorator</code> holds another <code>PCProduct</code> and adds its own name and price; concrete decorators can be stacked in any order. <code>ExtendedWarranty</code> shows a real benefit of decoration: its price is 6&nbsp;% per year <i>of everything it wraps</i>, including the other add-ons.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  class PCProduct {
+    &lt;&lt;interface&gt;&gt;
+    +getDescription() String
+    +getPrice() double
+    +getLineItems() List~String~
+  }
+  class BasePC {
+    -Computer computer
+    +ASSEMBLY_FEE$ double
+  }
+  class AddOnDecorator {
+    &lt;&lt;abstract&gt;&gt;
+    #PCProduct wrapped
+    #addOnName()* String
+    #addOnPrice()* double
+  }
+  class ExtendedWarranty { -int years }
+  PCProduct &lt;|.. BasePC
+  PCProduct &lt;|.. AddOnDecorator
+  AddOnDecorator o--&gt; PCProduct : wraps
+  AddOnDecorator &lt;|-- OsInstallation
+  AddOnDecorator &lt;|-- RgbLighting
+  AddOnDecorator &lt;|-- Overclocking
+  AddOnDecorator &lt;|-- ExtendedWarranty
+  </div></div>
+<pre>public abstract class AddOnDecorator implements PCProduct {
+    protected final PCProduct wrapped;
+    protected AddOnDecorator(PCProduct wrapped) { this.wrapped = wrapped; }
+    protected abstract String addOnName();
+    protected abstract double addOnPrice();
+
+    @Override public String getDescription() { return wrapped.getDescription() + " + " + addOnName(); }
+    @Override public double getPrice()       { return wrapped.getPrice() + addOnPrice(); }
+}
+
+public static class ExtendedWarranty extends AddOnDecorator {
+    private final int years;
+    @Override protected double addOnPrice() {           // depends on what it wraps
+        return Math.round(wrapped.getPrice() * 0.06 * years * 100) / 100.0;
+    }
+}
+
+// Facade composes the chain at runtime from the ticked check boxes
+PCProduct product = new BasePC(computer);
+if (addOns.contains(AddOnOption.OS_INSTALL)) product = new AddOns.OsInstallation(product);
+if (addOns.contains(AddOnOption.RGB))        product = new AddOns.RgbLighting(product);
+if (addOns.contains(AddOnOption.WARRANTY))   product = new AddOns.ExtendedWarranty(product, 2);</pre>
+
+  <!-- ---------------- Strategy -->
+  <h2>3.6 Strategy &mdash; pricing policies <span class="tag">Behavioral</span></h2>
+  <p><b>Problem.</b> The same PC is sold at different prices: full price, 10&nbsp;% student discount capped at $150, volume tiers for companies (5+ machines &minus;7&nbsp;%, 10+ &minus;12&nbsp;%), and campaign sales such as "Black Friday, &minus;$120 per PC". Hard-coding these rules in the checkout would produce a growing <code>switch</code> and break the Open/Closed principle.</p>
+  <p><b>Solution.</b> Every policy implements <code>PricingStrategy</code>. The quote, the checkout and the <code>Order</code> (the contexts) just call <code>pricing.total(unitPrice, qty)</code>. The user swaps strategies at runtime in a combo box, and a new campaign is a new class (or a new <code>SeasonalSale</code> instance) without touching existing code.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class PricingStrategy {
+    &lt;&lt;interface&gt;&gt;
+    +getName() String
+    +discount(double unitPrice, int qty) double
+    +total(double unitPrice, int qty) double
+  }
+  class Regular
+  class Student
+  class CorporateBulk
+  class SeasonalSale {
+    -String campaign
+    -double amountPerUnit
+  }
+  PricingStrategy &lt;|.. Regular
+  PricingStrategy &lt;|.. Student
+  PricingStrategy &lt;|.. CorporateBulk
+  PricingStrategy &lt;|.. SeasonalSale
+  StoreFacade ..&gt; PricingStrategy : quote() / checkout()
+  Order --&gt; PricingStrategy : context
+  </div></div>
+<pre>public interface PricingStrategy {
+    String getName();
+    double discount(double unitPrice, int quantity);
+    default double total(double unitPrice, int quantity) {
+        double subtotal = unitPrice * quantity;
+        return Math.round((subtotal - discount(unitPrice, quantity)) * 100) / 100.0;
+    }
+}
+
+public static class CorporateBulk implements PricingStrategy {
+    public double discount(double unitPrice, int quantity) {
+        double rate = quantity &gt;= 10 ? 0.12 : quantity &gt;= 5 ? 0.07 : 0.0;
+        return unitPrice * quantity * rate;
+    }
+}
+
+public static class Student implements PricingStrategy {
+    public double discount(double unitPrice, int quantity) {
+        return Math.min(unitPrice * quantity * 0.10, 150.0);
+    }
+}</pre>
+
+  <!-- ---------------- Observer -->
+  <h2>3.7 Observer &mdash; order and stock events <span class="tag">Behavioral</span></h2>
+  <p><b>Problem.</b> When an order changes status, several independent parties must react: the customer receives an e-mail, the workshop queues the build and runs a stress test, and the sales dashboard updates revenue. When stock runs low, purchasing must be warned. The order and the inventory should not know about any of these departments.</p>
+  <p><b>Solution.</b> The pattern is used twice. <code>Order</code> is a subject for <code>OrderObserver</code>s (<code>CustomerNotifier</code>, <code>AssemblyDepartment</code>, <code>SalesDashboard</code>); the <code>Inventory</code> singleton is a subject for <code>StockObserver</code>s (<code>LowStockAlert</code>). Subjects keep a list of observers and push every change. Observers write to a log sink, which the GUI shows in the "Event log" panel. Adding an SMS notifier means writing one class and attaching it &mdash; no change to <code>Order</code>.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  class Order {
+    -OrderStatus status
+    -List~OrderObserver~ observers
+    +attach(OrderObserver)
+    +detach(OrderObserver)
+    +setStatus(OrderStatus)
+    +advance()
+    -notifyObservers(old, new)
+  }
+  class OrderObserver {
+    &lt;&lt;interface&gt;&gt;
+    +onStatusChanged(Order, OrderStatus, OrderStatus)
+  }
+  class StockObserver {
+    &lt;&lt;interface&gt;&gt;
+    +onStockChanged(Component, int, int)
+  }
+  class OrderStatus {
+    &lt;&lt;enumeration&gt;&gt;
+    PLACED
+    PAID
+    ASSEMBLING
+    TESTING
+    SHIPPED
+    DELIVERED
+  }
+  Order --&gt; "*" OrderObserver
+  Order --&gt; OrderStatus
+  OrderObserver &lt;|.. CustomerNotifier
+  OrderObserver &lt;|.. AssemblyDepartment
+  OrderObserver &lt;|.. SalesDashboard
+  StockObserver &lt;|.. LowStockAlert
+  Inventory --&gt; "*" StockObserver
+  </div></div>
+<pre>public class Order {
+    private final List&lt;OrderObserver&gt; observers = new CopyOnWriteArrayList&lt;&gt;();
+    public void attach(OrderObserver o) { observers.add(o); }
+
+    public void setStatus(OrderStatus newStatus) {
+        OrderStatus old = this.status;
+        if (old == newStatus) return;
+        this.status = newStatus;
+        for (OrderObserver o : observers) o.onStatusChanged(this, old, newStatus);
+    }
+}
+
+public static class AssemblyDepartment implements OrderObserver {
+    public void onStatusChanged(Order order, OrderStatus oldStatus, OrderStatus newStatus) {
+        if (newStatus == OrderStatus.PAID)
+            log.accept("[Workshop] Queued " + order.getQuantity() + " x '"
+                    + order.getProduct().getDescription() + "' for assembly");
+        else if (newStatus == OrderStatus.TESTING)
+            log.accept("[Workshop] Running 4h stress test on " + order.getId());
+    }
+}</pre>
+
+  <!-- ---------------- Facade -->
+  <h2>3.8 Facade &mdash; <code>StoreFacade</code> <span class="tag">Structural</span></h2>
+  <p><b>Problem.</b> Placing one order involves many steps across many subsystems: decorate the PC with add-ons, price it with the right strategy, authorize the card, reserve every part in the inventory, capture the payment (or release the card hold if stock is short), create the order, attach its observers and mark it paid. Putting this logic into Swing event handlers would couple the UI to every class in the system.</p>
+  <p><b>Solution.</b> <code>StoreFacade</code> exposes a small API &mdash; <code>loadCatalog()</code>, <code>getParts()</code>, <code>preset()</code>, <code>quote()</code>, <code>checkout()</code>, <code>advanceOrder()</code> &mdash; and hides the subsystems behind it. Both the Swing window and the console demo use only this class. The subsystems remain accessible on their own (e.g. unit tests can use <code>PCBuilder</code> directly), which is the usual property of a facade.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class StoreFacade {
+    +loadCatalog()
+    +getParts(ComponentType) List~Component~
+    +newBuild() PCBuilder
+    +preset(Preset) PCBuilder
+    +decorate(Computer, Set) PCProduct
+    +quote(Computer, Set, PricingStrategy, int) Quote
+    +checkout(String, String, Computer, Set, PricingStrategy, int) Order
+    +advanceOrder(Order)
+  }
+  MainFrame --&gt; StoreFacade
+  ConsoleDemo --&gt; StoreFacade
+  StoreFacade --&gt; Inventory
+  StoreFacade --&gt; ComponentFactory
+  StoreFacade --&gt; BuildDirector
+  StoreFacade --&gt; PaymentGateway
+  StoreFacade ..&gt; SupplierFeed
+  StoreFacade ..&gt; AddOnDecorator
+  StoreFacade ..&gt; PricingStrategy
+  StoreFacade ..&gt; Order
+  </div></div>
+<pre>public Order checkout(String customer, String cardLast4, Computer computer,
+                      Set&lt;AddOnOption&gt; addOns, PricingStrategy pricing, int quantity) {
+    Quote q = quote(computer, addOns, pricing, quantity);         // Decorator + Strategy
+
+    String auth = payments.authorize(customer, cardLast4, q.getTotal()); // declined? stop here
+
+    List&lt;Component&gt; units = new ArrayList&lt;&gt;();
+    for (int i = 0; i &lt; quantity; i++) units.addAll(computer.allParts());
+    try {
+        inventory.reserve(units);                                   // Singleton, all-or-nothing
+    } catch (RuntimeException e) {
+        payments.voidAuthorization(auth);                           // release the card hold
+        throw e;
+    }
+    String tx = payments.capture(auth);
+
+    Order order = new Order(customer, q.getProduct(), quantity, pricing);
+    orderObservers.forEach(order::attach);                          // Observer
+    orders.add(order);
+    order.setStatus(OrderStatus.PAID);                              // notifies everyone
+    return order;
+}</pre>
+
+  <!-- ---------------- Command -->
+  <h2>3.9 Command &mdash; undo / redo <span class="tag">Behavioral</span></h2>
+  <p><b>Problem.</b> While configuring a PC the customer experiments: tries a bigger graphics card, sees that the power supply is now too weak, changes the case, and then wants to go back. Without history every mistake must be repaired by hand. Loading a preset changes up to eight parts at once, and undoing it part by part would be tedious.</p>
+  <p><b>Solution.</b> Every change is an object implementing <code>Command</code> with <code>execute()</code> and <code>undo()</code>. <code>SelectPart</code> stores the category, the old and the new part; <code>ChangeRamModules</code> stores the old and new count; <code>Macro</code> groups several commands (a preset load) so they are undone as <i>one</i> step. <code>CommandHistory</code> is the invoker with an undo stack and a redo stack (a new command clears redo, history is limited to 100 steps). The receiver is the <code>ConfigurationEditor</code> interface; the Swing window implements it, and the tests use a simple in-memory implementation, so the commands are independent of the GUI. In the application the buttons <i>Undo</i>/<i>Redo</i> and the shortcuts Ctrl+Z / Ctrl+Y use this history.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class Command {
+    &lt;&lt;interface&gt;&gt;
+    +execute()
+    +undo()
+    +getName() String
+  }
+  class SelectPart {
+    -ComponentType type
+    -Component oldPart
+    -Component newPart
+  }
+  class ChangeRamModules {
+    -int oldValue
+    -int newValue
+  }
+  class Macro {
+    -List~Command~ steps
+    +add(Command) Macro
+  }
+  class CommandHistory {
+    -Deque~Command~ undoStack
+    -Deque~Command~ redoStack
+    +execute(Command)
+    +record(Command)
+    +undo() Command
+    +redo() Command
+  }
+  class ConfigurationEditor {
+    &lt;&lt;interface&gt;&gt;
+    +getPart(ComponentType) Component
+    +setPart(ComponentType, Component)
+    +getRamModules() int
+    +setRamModules(int)
+  }
+  Command &lt;|.. SelectPart
+  Command &lt;|.. ChangeRamModules
+  Command &lt;|.. Macro
+  Macro o--&gt; "*" Command
+  CommandHistory o--&gt; "*" Command : invoker
+  SelectPart --&gt; ConfigurationEditor : receiver
+  ChangeRamModules --&gt; ConfigurationEditor : receiver
+  ConfigurationEditor &lt;|.. MainFrame
+  </div></div>
+<pre>public static class SelectPart implements Command {
+    private final ConfigurationEditor editor;
+    private final ComponentType type;
+    private final Component oldPart, newPart;
+
+    @Override public void execute() { editor.setPart(type, newPart); }
+    @Override public void undo()    { editor.setPart(type, oldPart); }
+}
+
+public static class Macro implements Command {            // one undo step for a whole preset
+    private final List&lt;Command&gt; steps = new ArrayList&lt;&gt;();
+    @Override public void execute() { for (Command c : steps) c.execute(); }
+    @Override public void undo() {
+        for (int i = steps.size() - 1; i &gt;= 0; i--) steps.get(i).undo();   // reverse order
+    }
+}
+
+public class CommandHistory {                               // the invoker
+    private final Deque&lt;Command&gt; undoStack = new ArrayDeque&lt;&gt;();
+    private final Deque&lt;Command&gt; redoStack = new ArrayDeque&lt;&gt;();
+
+    public void execute(Command c) { c.execute(); undoStack.push(c); redoStack.clear(); }
+    public Command undo() {
+        if (undoStack.isEmpty()) return null;
+        Command c = undoStack.pop(); c.undo(); redoStack.push(c); return c;
+    }
+    public Command redo() {
+        if (redoStack.isEmpty()) return null;
+        Command c = redoStack.pop(); c.execute(); undoStack.push(c); return c;
+    }
+}</pre>
+</section>
+
+<!-- ============================================================ 4 COOPERATION -->
+<section class="chapter">
+  <h1>4. How the patterns cooperate</h1>
+  <p>The patterns are not isolated examples; they form one pipeline. The sequence diagrams below show the two main scenarios.</p>
+
+  <h2>4.1 Start-up: loading the catalog</h2>
+  <p>Adapter &rarr; Factory &rarr; Singleton: the facade asks each supplier adapter for records, the factory turns each record into a concrete part, and the parts are stored in the single inventory.</p>
+  <div class="uml"><div class="mermaid">
+sequenceDiagram
+  participant UI as MainFrame
+  participant F as StoreFacade
+  participant A as NovaTechCsvAdapter
+  participant S as NovaTechCsvService
+  participant I as Inventory (Singleton)
+  participant CF as ComponentFactory
+  UI-&gt;&gt;F: loadCatalog()
+  F-&gt;&gt;I: importFrom(adapter, factory)
+  I-&gt;&gt;A: fetchRecords()
+  A-&gt;&gt;S: exportCatalogCsv()
+  S--&gt;&gt;A: CSV text lines
+  A--&gt;&gt;I: List of ComponentRecord
+  loop each record
+    I-&gt;&gt;CF: create(record)
+    CF--&gt;&gt;I: Cpu / Motherboard / PowerSupply ...
+  end
+  Note over F,I: the same is repeated for PartHubApiAdapter
+  </div></div>
+
+  <h2>4.2 Checkout and order tracking</h2>
+  <p>Builder &rarr; Facade &rarr; Decorator &rarr; Strategy &rarr; Singleton &rarr; Observer.</p>
+  <div class="uml"><div class="mermaid">
+sequenceDiagram
+  participant UI as MainFrame
+  participant B as PCBuilder
+  participant F as StoreFacade
+  participant D as Decorators
+  participant P as PricingStrategy
+  participant I as Inventory
+  participant G as PaymentGateway
+  participant O as Order
+  participant L as Observers
+  UI-&gt;&gt;B: validate() / build()
+  B--&gt;&gt;UI: Computer
+  UI-&gt;&gt;F: checkout(customer, card, computer, addOns, strategy, qty)
+  F-&gt;&gt;D: new BasePC -&gt; OsInstallation -&gt; ExtendedWarranty
+  D--&gt;&gt;F: PCProduct (price)
+  F-&gt;&gt;P: total(unitPrice, qty)
+  P--&gt;&gt;F: total
+  F-&gt;&gt;G: authorize(card, total)
+  G--&gt;&gt;F: authorization id
+  F-&gt;&gt;I: reserve(parts)
+  I-&gt;&gt;L: onStockChanged (LowStockAlert)
+  F-&gt;&gt;G: capture(authorization)
+  G--&gt;&gt;F: transaction id
+  F-&gt;&gt;O: new Order + attach(observers)
+  F-&gt;&gt;O: setStatus(PAID)
+  O-&gt;&gt;L: onStatusChanged (Email, Workshop, Dashboard)
+  UI-&gt;&gt;F: advanceOrder(order)
+  F-&gt;&gt;O: advance()
+  O-&gt;&gt;L: onStatusChanged (ASSEMBLING ... DELIVERED)
+  </div></div>
+</section>
+
+<!-- ============================================================ 5 SCREENSHOTS -->
+<section class="chapter">
+  <h1>5. Application screenshots</h1>
+  <p>The screenshots were produced by the application itself (<code>run.bat --screenshots docs\screenshots</code> drives the real GUI through a scripted scenario and saves PNG files).</p>
+
+  <figure>
+    <img src="../screenshots/01_configure_gaming.png" alt="Gaming preset">
+    <figcaption>Figure 5.1 &ndash; "Gaming Pro" preset loaded by the <b>Director</b>, validated by the <b>Builder</b>, with Windows and warranty add-ons (<b>Decorator</b>) and student pricing (<b>Strategy</b>).</figcaption>
+  </figure>
+
+  <figure>
+    <img src="../screenshots/02_incompatible_build.png" alt="Incompatible build">
+    <figcaption>Figure 5.2 &ndash; An incompatible configuration: the <b>Builder</b> lists five problems (socket, DDR type, form factor, GPU length, PSU wattage) and checkout is disabled.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="../screenshots/03_undo_command.png" alt="Undo">
+    <figcaption>Figure 5.3 &ndash; Three changes undone with <b>Command</b> history (memory, power supply and case are restored; see the event log). Five problems are reduced to two.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="../screenshots/04_corporate_quote.png" alt="Corporate quote">
+    <figcaption>Figure 5.4 &ndash; Six "Office Starter" PCs for a company: the corporate bulk <b>Strategy</b> applies a 7&nbsp;% discount. The event log shows <b>Observer</b> notifications from the first order.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="../screenshots/05_orders_observer.png" alt="Orders">
+    <figcaption>Figure 5.5 &ndash; Orders tab: three orders in different states. Every status change is pushed to the customer, the workshop and the sales dashboard (<b>Observer</b>).</figcaption>
+  </figure>
+
+  <figure>
+    <img src="../screenshots/06_inventory_singleton.png" alt="Inventory">
+    <figcaption>Figure 5.6 &ndash; Inventory tab: the single shared stock (<b>Singleton</b>) of parts imported from two suppliers (<b>Adapter</b> + <b>Factory</b>). Low-stock rows are highlighted.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ 6 TESTING -->
+<section class="chapter">
+  <h1>6. Testing and results</h1>
+  <h2>6.1 Automated tests</h2>
+  <p>The project contains its own small test runner (<code>test/com/byteforge/PatternTests.java</code>) so that the tests run on any machine with a JDK, without downloading JUnit. Every test starts from a freshly loaded catalog. Command: <code>run.bat --test</code> (exit code 1 if any test fails). Result of the last run: <b>34 passed, 0 failed</b>.</p>
+  <table>
+    <tr><th>Pattern</th><th>Test</th><th>Result</th></tr>
+    <tr><td>Singleton</td><td>getInstance() always returns the same object</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Singleton</td><td>constructor is private</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Singleton</td><td>reserve() is all-or-nothing</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Factory</td><td>creates the right subclass for each type</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Factory</td><td>missing attribute is reported clearly</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Adapter</td><td>CSV supplier: 11 records with parsed attributes</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Adapter</td><td>JSON supplier: categories mapped, cents converted</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Adapter</td><td>catalog contains 23 parts from both suppliers</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>all three presets are valid</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>socket mismatch is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>DDR4 on a DDR5 board is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>GPU longer than the case is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>weak PSU is rejected with a recommendation</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>F-series CPU without GPU is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>incomplete build lists every missing part</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>built Computer is immutable</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Decorator</td><td>base price = hardware + assembly</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Decorator</td><td>add-ons stack and describe themselves</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Decorator</td><td>warranty price includes what it wraps</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Strategy</td><td>regular price has no discount</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Strategy</td><td>student discount is 10% capped at $150</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Strategy</td><td>corporate tiers: 4 = 0%, 5 = 7%, 10 = 12%</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Strategy</td><td>seasonal sale is per unit and never negative</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Observer</td><td>all attached observers receive each change</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Observer</td><td>order life cycle ends at DELIVERED</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Observer</td><td>low-stock alert fires at the threshold</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>checkout reserves stock, charges and notifies</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>declined card leaves stock untouched</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>out of stock releases the card hold</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>quote equals the order total</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Command</td><td>undo restores the previous part, redo re-applies</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Command</td><td>macro command is undone as one step</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Command</td><td>a new command clears the redo stack</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Command</td><td>history is limited</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+  </table>
+
+  <h2>6.2 Console demonstration</h2>
+  <p>The console mode (<code>run.bat --console</code>) runs a fixed scenario through all nine patterns. Shortened output:</p>
+<pre>=== 2. BUILDER: a rejected custom build ================================
+   x CPU socket LGA1700 does not fit motherboard socket AM5.
+   x DDR4 memory is not supported by a DDR5 motherboard.
+   x ATX motherboard does not fit in the ITX case.
+   x Graphics card is 336 mm but the case fits only 322 mm.
+   x Power supply 550 W is too weak; at least 845 W recommended.
+
+=== 3. DECORATOR + STRATEGY: same PC, different add-ons and pricing ====
+   Gaming Pro + Windows 11 Pro + drivers setup + Extended warranty (+2 yr)
+   Hardware (8 parts)                        1531.95
+   Assembly &amp; stress test                      59.00
+   Windows 11 Pro + drivers setup             139.00
+   Extended warranty (+2 yr)                  207.59
+   TOTAL                                     1937.54
+
+   Regular price                            qty 1  -&gt; $  1,729.95
+   Student (-10%, max $150)                 qty 1  -&gt; $  1,579.95
+   Corporate bulk (5+: -7%, 10+: -12%)      qty 6  -&gt; $  9,653.12
+   Black Friday (-$120 per PC)              qty 1  -&gt; $  1,609.95
+
+=== 4. FACADE + OBSERVER: checkout and order tracking ==================
+   [Checkout] BF-1001 placed by Aruzhan S. - Student (-10%, max $150), total $1,579.95
+   [Email -&gt; Aruzhan S.] Your order BF-1001 is now PAID.
+   [Workshop] Queued 1 x 'Gaming Pro + Windows 11 Pro + drivers setup' for assembly (BF-1001).
+   [Dashboard] Orders paid: 1 | Revenue: $1,579.95
+   ...
+   [Email -&gt; Aruzhan S.] Your order BF-1001 is now DELIVERED.
+
+=== 6. FACADE error handling: a declined card never touches stock ======
+   RX 7800 XT stock before: 4
+   [Checkout] Payment declined for Bad Card Inc.: Card ****0000 was declined
+   RX 7800 XT stock after:  4
+
+=== 7. COMMAND: undo / redo of configuration changes ===================
+   After 3 commands: GPU = NVIDIA GeForce RTX 4090, RAM modules = 4
+   Undo: RAM modules 2 -&gt; 4
+   Undo: Graphics Card -&gt; NVIDIA GeForce RTX 4090
+   Now:  GPU = NVIDIA GeForce RTX 4060, RAM modules = 2
+   Redo: Graphics Card -&gt; NVIDIA GeForce RTX 4090</pre>
+
+  <h2>6.3 A defect found by testing</h2>
+  <p>The first version reserved stock <i>before</i> charging the card and returned the parts if the card was declined. The test "declined card leaves stock untouched" showed that this still produced <i>false low-stock alerts</i>: the observers saw the stock drop and react before the roll-back. We changed the facade to the two-step flow used by real payment gateways (authorize &rarr; reserve &rarr; capture). Thanks to the Facade pattern this change touched only <code>StoreFacade</code> and <code>PaymentGateway</code>; the GUI did not change at all.</p>
+</section>
+
+<!-- ============================================================ 7 CONCLUSION -->
+<section class="chapter">
+  <h1>7. Conclusion</h1>
+  <p>We designed and implemented ByteForge, a custom PC configurator and computer-store application in Java. The project integrates <b>nine</b> design patterns &mdash; three creational (Singleton, Factory, Builder), three structural (Adapter, Decorator, Facade) and three behavioral (Strategy, Observer, Command) &mdash; into a single working system, exceeding the required six. Every team member implemented three patterns, and all patterns are covered by 34 automated tests.</p>
+  <p>The patterns are not isolated demonstrations: they form one chain. Supplier <b>adapters</b> feed a <b>factory</b> that fills the <b>singleton</b> inventory; the <b>builder</b> guarantees that only physically compatible computers can exist, and every change of the configuration is a <b>command</b> that can be undone; <b>decorators</b> add services; a <b>strategy</b> prices the result; the <b>facade</b> runs checkout; and <b>observers</b> keep customers, the workshop, management and purchasing informed.</p>
+  <p>The main lessons we learned:</p>
+  <ul>
+    <li>Patterns pay off when requirements change. Adding a new supplier, part type, service, pricing campaign or notification channel requires a new class, not edits throughout the code (Open/Closed principle).</li>
+    <li>The Builder's validation turned a domain rule ("only compatible PCs") into a guarantee enforced by the type system: an invalid <code>Computer</code> object cannot be created.</li>
+    <li>The Facade kept the GUI thin. The same facade serves the Swing window, the console demo and the tests, and the payment-flow fix (Section 6.3) did not require any GUI change.</li>
+    <li>Defining the Command receiver as an interface made undo/redo testable without starting the GUI.</li>
+    <li>Patterns also have costs: more classes and indirection. We kept each pattern where it solved a real problem in the domain rather than adding patterns for their own sake.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 8 FURTHER WORK -->
+<section>
+  <h1 style="margin-top:20pt">8. Further work</h1>
+  <ul>
+    <li><b>Persistence.</b> Store the inventory and orders in a database (e.g. PostgreSQL via JDBC) behind a Repository; the Singleton would then wrap a connection pool.</li>
+    <li><b>Real supplier integration.</b> Replace the simulated services with real HTTP calls; thanks to the Adapter pattern only the adapter classes change.</li>
+    <li><b>State pattern</b> for the order life cycle, e.g. allow cancellation and refunds only before ASSEMBLING.</li>
+    <li><b>Chain of Responsibility</b> for compatibility rules, so each rule (socket, RAM, power, size) is a separate handler that can be enabled or reordered.</li>
+    <li><b>Recommendation strategy:</b> suggest the cheapest upgrade that fixes a compatibility problem (e.g. "choose a 1000 W PSU").</li>
+    <li><b>Benchmarks:</b> estimate gaming FPS or rendering time per configuration using public benchmark data.</li>
+    <li><b>Build tooling:</b> migrate the tests to JUnit 5 with a Maven/Gradle build and CI; a web front end (Spring Boot) reusing the same facade.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ APPENDIX -->
+<section class="chapter">
+  <h1>Appendix A. Project structure and how to run</h1>
+<pre>ByteForge/
+├── run.bat                      compile + run: GUI, --console, --test, --screenshots &lt;dir&gt;
+├── README.md
+├── ByteForge.iml, .idea/        IntelliJ IDEA project with 3 run configurations
+├── docs/
+│   ├── report/Report.pdf        this report (Report.html is its source)
+│   ├── screenshots/             PNG screenshots
+│   ├── console_output.txt       full console demo output
+│   └── test_output.txt          full test run output
+├── test/com/byteforge/
+│   └── PatternTests.java        34 automated tests
+└── src/com/byteforge/
+    ├── Main.java                entry point
+    ├── ConsoleDemo.java         text demo of all patterns
+    ├── model/                   Component, ComponentType, Parts (Cpu, Gpu, Ram, ...)
+    ├── adapter/                 SupplierFeed, NovaTechCsvAdapter/Service, PartHubApiAdapter/Client
+    ├── factory/                 ComponentFactory, ComponentRecord
+    ├── inventory/               Inventory (Singleton)
+    ├── builder/                 PCBuilder, Computer, BuildDirector, CompatibilityChecker
+    ├── decorator/               PCProduct, BasePC, AddOnDecorator, AddOns
+    ├── strategy/                PricingStrategy, PricingStrategies
+    ├── observer/                Order, OrderStatus, OrderObserver, StockObserver, Listeners
+    ├── facade/                  StoreFacade, PaymentGateway, AddOnOption
+    ├── command/                 Command, ConfigCommands, CommandHistory, ConfigurationEditor
+    └── ui/                      MainFrame, ScreenshotTour</pre>
+  <h2>Running</h2>
+  <ul>
+    <li><b>IntelliJ IDEA:</b> File &rarr; Open &rarr; the <code>ByteForge</code> folder. Choose the run configuration <i>ByteForge GUI</i>, <i>ByteForge Console demo</i> or <i>ByteForge Tests</i>. If IntelliJ asks for an SDK, select any JDK 11+.</li>
+    <li><b>Command line (Windows):</b> <code>run.bat</code> (GUI), <code>run.bat --console</code>, <code>run.bat --test</code>. Requires JDK 11 or newer.</li>
+    <li><b>Any OS:</b> <code>javac -d out $(find src test -name "*.java")</code> then <code>java -cp out com.byteforge.Main</code>.</li>
+  </ul>
+  <h2>Suggested defense scenario (5 minutes)</h2>
+  <ol>
+    <li>Start the GUI: the header shows two suppliers imported through <b>adapters</b>; the Inventory tab shows the <b>singleton</b> stock created by the <b>factory</b>.</li>
+    <li>Load "Gaming Pro" (<b>Director</b>), then choose an Intel CPU and the RTX 4090 &rarr; the <b>Builder</b> shows the problems.</li>
+    <li>Press Ctrl+Z twice (<b>Command</b>) &rarr; the configuration is valid again.</li>
+    <li>Tick Windows + warranty (<b>Decorator</b>), switch customer type (<b>Strategy</b>) and watch the quote change.</li>
+    <li>Place the order (<b>Facade</b>), open the Orders tab and advance it &rarr; notifications in the event log (<b>Observer</b>).</li>
+    <li>Try card <b>0000</b> &rarr; payment declined, stock unchanged. Finish with <code>run.bat --test</code>: 34 passed.</li>
+  </ol>
+</section>
+
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose',
+    flowchart: { useMaxWidth: true }, sequence: { useMaxWidth: true }, class: { useMaxWidth: true } });
+</script>
+</body>
+</html>

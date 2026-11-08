@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ByteForge Console demo" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.byteforge.Main" />
+    <option name="PROGRAM_PARAMETERS" value="--console" />
+    <module name="ByteForge" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

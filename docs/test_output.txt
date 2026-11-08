@@ -1,0 +1,38 @@
+ByteForge pattern tests
+=======================
+  PASS  Singleton  getInstance() always returns the same object
+  PASS  Singleton  constructor is private
+  PASS  Singleton  reserve() is all-or-nothing
+  PASS  Factory    creates the right subclass for each type
+  PASS  Factory    missing attribute is reported clearly
+  PASS  Adapter    CSV supplier: 11 records with parsed attributes
+  PASS  Adapter    JSON supplier: categories mapped, cents converted
+  PASS  Adapter    catalog contains 23 parts from both suppliers
+  PASS  Builder    all three presets are valid
+  PASS  Builder    socket mismatch is rejected
+  PASS  Builder    DDR4 on a DDR5 board is rejected
+  PASS  Builder    GPU longer than the case is rejected
+  PASS  Builder    weak PSU is rejected with a recommendation
+  PASS  Builder    F-series CPU without GPU is rejected
+  PASS  Builder    incomplete build lists every missing part
+  PASS  Builder    built Computer is immutable
+  PASS  Decorator  base price = hardware + assembly
+  PASS  Decorator  add-ons stack and describe themselves
+  PASS  Decorator  warranty price includes what it wraps
+  PASS  Strategy   regular price has no discount
+  PASS  Strategy   student discount is 10% capped at $150
+  PASS  Strategy   corporate tiers: 4 = 0%, 5 = 7%, 10 = 12%
+  PASS  Strategy   seasonal sale is per unit and never negative
+  PASS  Observer   all attached observers receive each change
+  PASS  Observer   order life cycle ends at DELIVERED
+  PASS  Observer   low-stock alert fires at the threshold
+  PASS  Facade     checkout reserves stock, charges and notifies
+  PASS  Facade     declined card leaves stock untouched
+  PASS  Facade     out of stock releases the card hold
+  PASS  Facade     quote equals the order total
+  PASS  Command    undo restores the previous part, redo re-applies
+  PASS  Command    macro command is undone as one step
+  PASS  Command    a new command clears the redo stack
+  PASS  Command    history is limited
+=======================
+34 passed, 0 failed

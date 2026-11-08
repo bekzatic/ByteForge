@@ -1,0 +1,81 @@
+
+=== 1. ADAPTER + FACTORY + SINGLETON: loading the catalog =================
+   [Catalog] Imported 11 parts from NovaTech Distribution (CSV)
+   [Catalog] Imported 12 parts from PartHub REST API (JSON)
+   Same inventory instance everywhere: true
+   Parts in catalog: 23
+
+=== 2. BUILDER: a rejected custom build ===================================
+   x CPU socket LGA1700 does not fit motherboard socket AM5.
+   x DDR4 memory is not supported by a DDR5 motherboard.
+   x ATX motherboard does not fit in the ITX case.
+   x Graphics card is 336 mm but the case fits only 322 mm.
+   x Power supply 550 W is too weak; at least 845 W recommended.
+
+=== 2b. BUILDER (Director): a preset that passes validation ===============
+   Gaming Pro
+     Processor:      AMD Ryzen 7 7800X3D
+     Motherboard:    ASUS TUF Gaming B650-Plus
+     Memory:         2 x Kingston FURY Beast 16GB
+     Graphics Card:  AMD Radeon RX 7800 XT
+     Storage:        Samsung 990 PRO 1TB
+     Power Supply:   Corsair RM850x
+     Case:           NZXT H5 Flow
+     Total RAM:      32 GB
+     Power draw:     ~461 W (PSU 850 W)
+
+=== 3. DECORATOR + STRATEGY: same PC, different add-ons and pricing =======
+   Gaming Pro + Windows 11 Pro + drivers setup + Extended warranty (+2 yr)
+   Hardware (8 parts)                        1531.95
+   Assembly & stress test                      59.00
+   Windows 11 Pro + drivers setup             139.00
+   Extended warranty (+2 yr)                  207.59
+   Price per PC                              1937.54
+   Quantity                                        1
+   Subtotal                                  1937.54
+   Pricing: Regular price                
+   Discount                                    -0.00
+   TOTAL                                     1937.54
+
+   Regular price                            qty 1  -> $  1,729.95
+   Student (-10%, max $150)                 qty 1  -> $  1,579.95
+   Corporate bulk (5+: -7%, 10+: -12%)      qty 6  -> $  9,653.12
+   Black Friday (-$120 per PC)              qty 1  -> $  1,609.95
+
+=== 4. FACADE + OBSERVER: checkout and order tracking =====================
+   [Checkout] BF-1001 placed by Aruzhan S. - Student (-10%, max $150), total $1,579.95 (payment TX-5001)
+   [Email -> Aruzhan S.] Your order BF-1001 is now PAID.
+   [Workshop] Queued 1 x 'Gaming Pro + Windows 11 Pro + drivers setup' for assembly (BF-1001).
+   [Dashboard] Orders paid: 1 | Revenue: $1,579.95
+   [Email -> Aruzhan S.] Your order BF-1001 is now ASSEMBLING.
+   [Email -> Aruzhan S.] Your order BF-1001 is now TESTING.
+   [Workshop] Running 4h stress test on BF-1001.
+   [Email -> Aruzhan S.] Your order BF-1001 is now SHIPPED.
+   [Email -> Aruzhan S.] Your order BF-1001 is now DELIVERED.
+   [Dashboard] Delivered orders: 1
+
+=== 5. OBSERVER on the singleton: low-stock alerts ========================
+   [Purchasing] LOW STOCK: Intel Core i9-14900K - only 2 left, reorder from supplier.
+   [Purchasing] LOW STOCK: NVIDIA GeForce RTX 4090 - only 1 left, reorder from supplier.
+   [Purchasing] LOW STOCK: Seasonic Prime TX-1000 - only 2 left, reorder from supplier.
+   [Checkout] BF-1002 placed by Daniyar T. - Regular price, total $3,410.94 (payment TX-5002)
+   [Email -> Daniyar T.] Your order BF-1002 is now PAID.
+   [Workshop] Queued 1 x 'Creator Workstation' for assembly (BF-1002).
+   [Dashboard] Orders paid: 2 | Revenue: $4,990.89
+
+=== 6. FACADE error handling: a declined card never touches stock =========
+   RX 7800 XT stock before: 4
+   [Checkout] Payment declined for Bad Card Inc.: Card ****0000 was declined
+   Declined: Card ****0000 was declined
+   RX 7800 XT stock after:  4
+
+=== 7. COMMAND: undo / redo of configuration changes ======================
+   After 3 commands: GPU = NVIDIA GeForce RTX 4090, RAM modules = 4
+   Undo: RAM modules 2 -> 4
+   Undo: Graphics Card -> NVIDIA GeForce RTX 4090
+   Now:  GPU = NVIDIA GeForce RTX 4060, RAM modules = 2
+   Redo: Graphics Card -> NVIDIA GeForce RTX 4090
+   Now:  GPU = NVIDIA GeForce RTX 4090
+
+=== Done ==================================================================
+   Paid orders: 2, revenue $4,990.89
