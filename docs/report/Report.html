@@ -1059,7 +1059,9 @@ sequenceDiagram
 
   <h2>6.2 Console demonstration</h2>
   <p>The console mode (<code>run.bat --console</code>) runs a fixed scenario through the patterns. Shortened output:</p>
-<pre>=== 2. BUILDER: a rejected custom build ================================
+<pre>=== 2. BUILDER + CHAIN OF RESPONSIBILITY: a rejected custom build =====
+   Rule chain: Required parts -&gt; CPU socket -&gt; Memory type -&gt; Memory slots -&gt; Board fits case
+               -&gt; GPU clearance -&gt; Drive bays -&gt; Integrated graphics -&gt; Power budget
    x CPU socket LGA1700 does not fit motherboard socket AM5.
    x DDR4 memory is not supported by a DDR5 motherboard.
    x ATX motherboard does not fit in the ITX case.
@@ -1092,7 +1094,13 @@ sequenceDiagram
    [Checkout] Payment declined for Bad Card Inc.: Card ****0000 was declined
    RX 7800 XT stock after:  4
 
-=== 7. COMMAND: undo / redo of configuration changes ===================
+=== 7. STATE: cancelling depends on where the order is ==================
+   BF-1003 is PAID -&gt; Paid, waiting in the workshop queue. Can still be cancelled with a full refund.
+   [Checkout] BF-1003 cancelled (customer changed their mind): $715.97 refunded, parts returned to stock.
+   BF-1004 is ASSEMBLING -&gt; On the workbench. Cancellation is no longer possible.
+   Refused: Order BF-1004 cannot be cancelled: the PC is already being assembled
+
+=== 8. COMMAND: undo / redo of configuration changes ===================
    After 3 commands: GPU = NVIDIA GeForce RTX 4090, RAM modules = 4
    Undo: RAM modules 2 -&gt; 4
    Undo: Graphics Card -&gt; NVIDIA GeForce RTX 4090

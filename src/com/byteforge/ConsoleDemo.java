@@ -17,13 +17,14 @@ import com.byteforge.facade.StoreFacade;
 import com.byteforge.inventory.Inventory;
 import com.byteforge.model.Parts;
 import com.byteforge.observer.Order;
+import com.byteforge.rules.CompatibilityRules;
 import com.byteforge.strategy.PricingStrategies;
 import com.byteforge.strategy.PricingStrategy;
 
 import java.util.EnumSet;
 
 /**
- * Text-mode walkthrough that exercises all eight patterns in order.
+ * Text-mode walkthrough that exercises all eleven patterns in order.
  * Run with: {@code java -cp out com.byteforge.Main --console}
  */
 public final class ConsoleDemo {
@@ -37,7 +38,9 @@ public final class ConsoleDemo {
         System.out.println("   Same inventory instance everywhere: " + (inv == Inventory.getInstance()));
         System.out.println("   Parts in catalog: " + inv.all().size());
 
-        section("2. BUILDER: a rejected custom build");
+        section("2. BUILDER + CHAIN OF RESPONSIBILITY: a rejected custom build");
+        System.out.println("   Rule chain: " + String.join(" -> ",
+                CompatibilityRules.namesOf(CompatibilityRules.standardChain())));
         PCBuilder bad = store.newBuild()
                 .name("Mismatched build")
                 .cpu(inv.findBySku("NT-CPU-03"))          // Intel LGA1700
@@ -95,7 +98,21 @@ public final class ConsoleDemo {
         }
         System.out.println("   RX 7800 XT stock after:  " + inv.getStock(gpu));
 
-        section("7. COMMAND: undo / redo of configuration changes");
+        section("7. STATE: cancelling depends on where the order is");
+        Computer office = store.preset(BuildDirector.Preset.OFFICE).build();
+        Order early = store.checkout("Timur K.", "5521", office, EnumSet.noneOf(AddOnOption.class), strategies[0], 1);
+        System.out.println("   " + early.getId() + " is " + early.getStatus() + " -> " + early.getHint());
+        store.cancelOrder(early, "customer changed their mind");
+        Order late = store.checkout("Aliya N.", "6012", office, EnumSet.noneOf(AddOnOption.class), strategies[0], 1);
+        store.advanceOrder(late);
+        System.out.println("   " + late.getId() + " is " + late.getStatus() + " -> " + late.getHint());
+        try {
+            store.cancelOrder(late, "too late");
+        } catch (IllegalStateException e) {
+            System.out.println("   Refused: " + e.getMessage());
+        }
+
+        section("8. COMMAND: undo / redo of configuration changes");
         Map<ComponentType, Component> selection = new EnumMap<>(ComponentType.class);
         int[] ram = {2};
         ConfigurationEditor editor = new ConfigurationEditor() {

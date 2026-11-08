@@ -5,7 +5,8 @@
    Same inventory instance everywhere: true
    Parts in catalog: 23
 
-=== 2. BUILDER: a rejected custom build ===================================
+=== 2. BUILDER + CHAIN OF RESPONSIBILITY: a rejected custom build =========
+   Rule chain: Required parts -> CPU socket -> Memory type -> Memory slots -> Board fits case -> GPU clearance -> Drive bays -> Integrated graphics -> Power budget
    x CPU socket LGA1700 does not fit motherboard socket AM5.
    x DDR4 memory is not supported by a DDR5 motherboard.
    x ATX motherboard does not fit in the ITX case.
@@ -69,7 +70,25 @@
    Declined: Card ****0000 was declined
    RX 7800 XT stock after:  4
 
-=== 7. COMMAND: undo / redo of configuration changes ======================
+=== 7. STATE: cancelling depends on where the order is ====================
+   [Checkout] BF-1003 placed by Timur K. - Regular price, total $715.97 (payment TX-5003)
+   [Email -> Timur K.] Your order BF-1003 is now PAID.
+   [Workshop] Queued 1 x 'Office Starter' for assembly (BF-1003).
+   [Dashboard] Orders paid: 3 | Revenue: $5,706.86
+   BF-1003 is PAID -> Paid, waiting in the workshop queue. Can still be cancelled with a full refund.
+   [Email -> Timur K.] Order BF-1003 was cancelled (customer changed their mind). $715.97 will be refunded.
+   [Workshop] Removed BF-1003 from the assembly queue.
+   [Dashboard] Cancelled orders: 1 | Revenue: $4,990.89
+   [Checkout] BF-1003 cancelled (customer changed their mind): $715.97 refunded, parts returned to stock.
+   [Checkout] BF-1004 placed by Aliya N. - Regular price, total $715.97 (payment TX-5004)
+   [Email -> Aliya N.] Your order BF-1004 is now PAID.
+   [Workshop] Queued 1 x 'Office Starter' for assembly (BF-1004).
+   [Dashboard] Orders paid: 4 | Revenue: $5,706.86
+   [Email -> Aliya N.] Your order BF-1004 is now ASSEMBLING.
+   BF-1004 is ASSEMBLING -> On the workbench. Cancellation is no longer possible.
+   Refused: Order BF-1004 cannot be cancelled: the PC is already being assembled
+
+=== 8. COMMAND: undo / redo of configuration changes ======================
    After 3 commands: GPU = NVIDIA GeForce RTX 4090, RAM modules = 4
    Undo: RAM modules 2 -> 4
    Undo: Graphics Card -> NVIDIA GeForce RTX 4090
@@ -78,4 +97,4 @@
    Now:  GPU = NVIDIA GeForce RTX 4090
 
 === Done ==================================================================
-   Paid orders: 2, revenue $4,990.89
+   Paid orders: 4, revenue $5,706.86
