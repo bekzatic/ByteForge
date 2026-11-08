@@ -118,7 +118,7 @@
     <tr><td>Language</td><td>Java 11+ (developed and tested with JDK 17, Temurin)</td></tr>
     <tr><td>User interface</td><td>Java Swing with the Nimbus look and feel</td></tr>
     <tr><td>Build</td><td>Plain <code>javac</code> (no external libraries); <code>run.bat</code> script; ready-made IntelliJ IDEA project with run configurations</td></tr>
-    <tr><td>Testing</td><td>Own dependency-free test runner (<code>run.bat --test</code>), 46 automated tests</td></tr>
+    <tr><td>Testing</td><td>Own dependency-free test runner (<code>run.bat --test</code>), 48 automated tests</td></tr>
     <tr><td>Diagrams</td><td>UML class and sequence diagrams (Mermaid notation)</td></tr>
     <tr><td>Size</td><td>43 source files, about 4,000 lines of code, 12 packages</td></tr>
   </table>
@@ -159,7 +159,7 @@
     <tr><td><code>state</code></td><td>Behaviour of each step of the order life cycle</td><td>State</td></tr>
     <tr><td><code>rules</code></td><td>Hardware compatibility rules linked into a chain</td><td>Chain of Responsibility</td></tr>
     <tr><td><code>ui</code></td><td>Swing window and the screenshot tour</td><td>&mdash;</td></tr>
-    <tr><td><code>test/</code></td><td>46 automated tests for all patterns</td><td>&mdash;</td></tr>
+    <tr><td><code>test/</code></td><td>48 automated tests for all patterns</td><td>&mdash;</td></tr>
   </table>
 
   <div class="uml">
@@ -1022,7 +1022,7 @@ sequenceDiagram
 <section class="chapter">
   <h1>6. Testing and results</h1>
   <h2>6.1 Automated tests</h2>
-  <p>The project contains its own small test runner (<code>test/com/byteforge/PatternTests.java</code>) so that the tests run on any machine with a JDK, without downloading JUnit. Every test starts from a freshly loaded catalog. Command: <code>run.bat --test</code> (exit code 1 if any test fails). Result of the last run: <b>46 passed, 0 failed</b>.</p>
+  <p>The project contains its own small test runner (<code>test/com/byteforge/PatternTests.java</code>) so that the tests run on any machine with a JDK, without downloading JUnit. Every test starts from a freshly loaded catalog. Command: <code>run.bat --test</code> (exit code 1 if any test fails). Result of the last run: <b>48 passed, 0 failed</b>.</p>
   <table>
     <tr><th>Pattern</th><th>Test</th><th>Result</th></tr>
     <tr><td>Singleton</td><td>getInstance() always returns the same object</td><td><b style="color:#1a7f37">Pass</b></td></tr>
@@ -1034,6 +1034,8 @@ sequenceDiagram
     <tr><td>Adapter</td><td>JSON supplier: categories mapped, cents converted</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Adapter</td><td>catalog contains 23 parts from both suppliers</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>all three presets are valid</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>Director recognises an unchanged preset</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Builder</td><td>a modified preset is named Custom build</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>socket mismatch is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>DDR4 on a DDR5 board is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>GPU longer than the case is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
@@ -1130,7 +1132,7 @@ sequenceDiagram
 <!-- ============================================================ 7 CONCLUSION -->
 <section class="chapter">
   <h1>7. Conclusion</h1>
-  <p>We designed and implemented ByteForge, a custom PC configurator and computer-store application in Java. The project integrates <b>eleven</b> design patterns &mdash; three creational (Singleton, Factory, Builder), three structural (Adapter, Decorator, Facade) and five behavioral (Strategy, Observer, Command, State, Chain of Responsibility) &mdash; into a single working system, far beyond the required six. Every team member implemented three or four patterns, and all patterns are covered by 46 automated tests.</p>
+  <p>We designed and implemented ByteForge, a custom PC configurator and computer-store application in Java. The project integrates <b>eleven</b> design patterns &mdash; three creational (Singleton, Factory, Builder), three structural (Adapter, Decorator, Facade) and five behavioral (Strategy, Observer, Command, State, Chain of Responsibility) &mdash; into a single working system, far beyond the required six. Every team member implemented three or four patterns, and all patterns are covered by 48 automated tests.</p>
   <p>The patterns are not isolated demonstrations: they form one chain. Supplier <b>adapters</b> feed a <b>factory</b> that fills the <b>singleton</b> inventory; the <b>builder</b>, using a <b>chain</b> of compatibility rules, guarantees that only physically compatible computers can exist, and every change of the configuration is a <b>command</b> that can be undone; <b>decorators</b> add services; a <b>strategy</b> prices the result; the <b>facade</b> runs checkout; the order&rsquo;s <b>state</b> decides what may happen next; and <b>observers</b> keep customers, the workshop, management and purchasing informed.</p>
   <p>The main lessons we learned:</p>
   <ul>
@@ -1169,7 +1171,7 @@ sequenceDiagram
 │   ├── console_output.txt       full console demo output
 │   └── test_output.txt          full test run output
 ├── test/com/byteforge/
-│   └── PatternTests.java        46 automated tests
+│   └── PatternTests.java        48 automated tests
 └── src/com/byteforge/
     ├── Main.java                entry point
     ├── ConsoleDemo.java         text demo of all patterns
@@ -1200,7 +1202,7 @@ sequenceDiagram
     <li>Tick Windows + warranty (<b>Decorator</b>), switch customer type (<b>Strategy</b>) and watch the quote change.</li>
     <li>Place the order (<b>Facade</b>), open the Orders tab and advance it &rarr; notifications in the event log (<b>Observer</b>).</li>
     <li>Place a second order and cancel it while PAID; try to cancel the one being assembled &rarr; refused (<b>State</b>).</li>
-    <li>Try card <b>0000</b> &rarr; payment declined, stock unchanged. Finish with <code>run.bat --test</code>: 46 passed.</li>
+    <li>Try card <b>0000</b> &rarr; payment declined, stock unchanged. Finish with <code>run.bat --test</code>: 48 passed.</li>
   </ol>
 </section>
 

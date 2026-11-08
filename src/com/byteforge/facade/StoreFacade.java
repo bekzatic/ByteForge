@@ -112,6 +112,11 @@ public class StoreFacade {
         return director.construct(preset);
     }
 
+    /** Names the build after a preset only if it is that preset unchanged, otherwise "Custom build". */
+    public PCBuilder nameBuild(PCBuilder b) {
+        return b.name(director.identify(b).map(BuildDirector.Preset::toString).orElse("Custom build"));
+    }
+
     /** Wraps the computer in one decorator per selected add-on. */
     public PCProduct decorate(Computer computer, Set<AddOnOption> addOns) {
         PCProduct product = new BasePC(computer);

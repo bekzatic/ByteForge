@@ -552,22 +552,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         if (ram instanceof Parts.Ram) {
             b.ram((Parts.Ram) ram, (Integer) ramModules.getValue());
         }
-        Object preset = presetBox.getSelectedItem();
-        if (preset != null && matchesPreset((BuildDirector.Preset) preset)) {
-            b.name(preset.toString());
-        }
-        return b;
-    }
-
-    private boolean matchesPreset(BuildDirector.Preset preset) {
-        try {
-            Computer p = store.preset(preset).build();
-            return pickers.get(ComponentType.CPU).getSelectedItem() == p.getCpu()
-                    && pickers.get(ComponentType.GPU).getSelectedItem() == (p.getGpu() == null
-                    ? pickers.get(ComponentType.GPU).getItemAt(0) : p.getGpu());
-        } catch (RuntimeException e) {
-            return false;
-        }
+        return store.nameBuild(b); // preset name only if every part matches the recipe
     }
 
     void refresh() {

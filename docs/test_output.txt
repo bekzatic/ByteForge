@@ -9,6 +9,8 @@ ByteForge pattern tests
   PASS  Adapter    JSON supplier: categories mapped, cents converted
   PASS  Adapter    catalog contains 23 parts from both suppliers
   PASS  Builder    all three presets are valid
+  PASS  Builder    Director recognises an unchanged preset
+  PASS  Builder    a modified preset is named Custom build
   PASS  Builder    socket mismatch is rejected
   PASS  Builder    DDR4 on a DDR5 board is rejected
   PASS  Builder    GPU longer than the case is rejected
@@ -47,4 +49,4 @@ ByteForge pattern tests
   PASS  Command    a new command clears the redo stack
   PASS  Command    history is limited
 =======================
-46 passed, 0 failed
+48 passed, 0 failed

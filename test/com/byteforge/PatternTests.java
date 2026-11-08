@@ -168,6 +168,19 @@ public final class PatternTests {
                 eq(p.toString(), c.getName());
             }
         });
+        test("Builder", "Director recognises an unchanged preset", () -> {
+            for (BuildDirector.Preset p : BuildDirector.Preset.values()) {
+                eq(p.toString(), store.nameBuild(store.preset(p).name("x")).build().getName());
+            }
+        });
+        test("Builder", "a modified preset is named Custom build", () -> {
+            eq("Custom build", store.nameBuild(store.preset(BuildDirector.Preset.GAMING)
+                    .psu(sku("NT-PSU-03"))).build().getName());                 // other PSU
+            eq("Custom build", store.nameBuild(store.preset(BuildDirector.Preset.GAMING)
+                    .ram(sku("PH-1001"), 1)).build().getName());                // fewer RAM modules
+            eq("Custom build", store.nameBuild(store.preset(BuildDirector.Preset.WORKSTATION)
+                    .clearDrives().addDrive(sku("PH-3001"))).build().getName()); // second drive missing
+        });
         test("Builder", "socket mismatch is rejected", () -> {
             PCBuilder b = store.preset(BuildDirector.Preset.GAMING).cpu(sku("NT-CPU-03"));
             IncompatibleBuildException e = expect(IncompatibleBuildException.class, b::build);

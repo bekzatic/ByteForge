@@ -38,6 +38,24 @@ public class BuildDirector {
         }
     }
 
+    /**
+     * Returns the preset whose recipe has exactly the same parts as {@code b}
+     * (same CPU, board, RAM and module count, GPU, drives, PSU and case), if any.
+     * Used to name a build honestly: a modified preset is a custom build.
+     */
+    public java.util.Optional<Preset> identify(PCBuilder b) {
+        for (Preset p : Preset.values()) {
+            PCBuilder r = construct(p);
+            if (r.getCpu() == b.getCpu() && r.getMotherboard() == b.getMotherboard()
+                    && r.getRam() == b.getRam() && r.getRamModules() == b.getRamModules()
+                    && r.getGpu() == b.getGpu() && r.getDrives().equals(b.getDrives())
+                    && r.getPsu() == b.getPsu() && r.getCase() == b.getCase()) {
+                return java.util.Optional.of(p);
+            }
+        }
+        return java.util.Optional.empty();
+    }
+
     private PCBuilder office() {
         return new PCBuilder()
                 .name(Preset.OFFICE.toString())
