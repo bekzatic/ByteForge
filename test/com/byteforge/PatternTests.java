@@ -24,6 +24,8 @@ import com.byteforge.model.Component;
 import com.byteforge.model.ComponentType;
 import com.byteforge.model.Parts;
 import com.byteforge.observer.Order;
+import com.byteforge.rules.CompatibilityRule;
+import com.byteforge.rules.CompatibilityRules;
 import com.byteforge.observer.OrderObserver;
 import com.byteforge.observer.OrderStatus;
 import com.byteforge.strategy.PricingStrategies;
@@ -194,6 +196,54 @@ public final class PatternTests {
         test("Builder", "built Computer is immutable", () -> {
             Computer c = preset(BuildDirector.Preset.WORKSTATION);
             expect(UnsupportedOperationException.class, () -> c.getDrives().clear());
+        });
+
+        // ---- Chain of Responsibility
+        test("Chain", "standard chain contains 9 rules in a fixed order", () ->
+                eq("[Required parts, CPU socket, Memory type, Memory slots, Board fits case, GPU clearance, "
+                                + "Drive bays, Integrated graphics, Power budget]",
+                        CompatibilityRules.namesOf(CompatibilityRules.standardChain()).toString()));
+        test("Chain", "every rule runs, so all problems are reported at once", () -> {
+            List<String> issues = store.preset(BuildDirector.Preset.GAMING)
+                    .cpu(sku("NT-CPU-04")).ram(sku("PH-1003"), 2).gpu(sku("PH-2003"))
+                    .psu(sku("NT-PSU-01")).pcCase(sku("PH-4003")).validate();
+            eq(5, issues.size());
+        });
+        test("Chain", "ITX board accepts at most 2 RAM modules", () -> {
+            List<String> issues = store.newBuild().cpu(sku("NT-CPU-01")).motherboard(sku("NT-MB-04"))
+                    .ram(sku("PH-1001"), 4).addDrive(sku("PH-3002")).psu(sku("NT-PSU-01"))
+                    .pcCase(sku("PH-4003")).validate();
+            check(issues.size() == 1 && issues.get(0).contains("1 to 2 RAM modules"), issues.toString());
+        });
+        test("Chain", "ITX case has only 2 drive bays", () -> {
+            List<String> issues = store.newBuild().cpu(sku("NT-CPU-01")).motherboard(sku("NT-MB-04"))
+                    .ram(sku("PH-1001"), 2).addDrive(sku("PH-3001")).addDrive(sku("PH-3002"))
+                    .addDrive(sku("PH-3003")).psu(sku("NT-PSU-01")).pcCase(sku("PH-4003")).validate();
+            check(issues.size() == 1 && issues.get(0).contains("room for 2 drives"), issues.toString());
+        });
+        test("Chain", "a new rule can be appended without changing existing ones", () -> {
+            CompatibilityRule budget = new CompatibilityRule() {
+                public String getName() { return "Budget limit"; }
+                protected void check(PCBuilder b, List<String> issues) {
+                    double sum = b.loadParts().stream().mapToDouble(Component::getPrice).sum();
+                    if (sum > 1000) issues.add("Over the $1000 budget.");
+                }
+            };
+            CompatibilityRule chain = CompatibilityRules.standardChain();
+            CompatibilityRule last = chain;
+            while (last.getNext() != null) last = last.getNext();
+            last.then(budget);
+            List<String> issues = store.preset(BuildDirector.Preset.WORKSTATION).rules(chain).validate();
+            eq("[Over the $1000 budget.]", issues.toString());
+            check(store.preset(BuildDirector.Preset.WORKSTATION).validate().isEmpty(), "standard chain changed");
+        });
+        test("Chain", "a rule can stop the chain", () -> {
+            CompatibilityRule stopper = new CompatibilityRules.RequiredParts() {
+                protected boolean shouldContinue(PCBuilder b, List<String> issues) { return issues.isEmpty(); }
+            };
+            stopper.then(new CompatibilityRules.PowerBudget());
+            List<String> issues = store.newBuild().psu(sku("NT-PSU-01")).rules(stopper).validate();
+            eq(5, issues.size()); // only "required" messages, power rule never ran
         });
 
         // ---- Decorator

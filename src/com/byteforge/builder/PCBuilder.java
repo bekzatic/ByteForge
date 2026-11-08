@@ -2,6 +2,8 @@ package com.byteforge.builder;
 
 import com.byteforge.model.Component;
 import com.byteforge.model.Parts;
+import com.byteforge.rules.CompatibilityRule;
+import com.byteforge.rules.CompatibilityRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +50,36 @@ public class PCBuilder {
 
     /** Lists every compatibility problem of the current configuration (empty = OK). */
     public List<String> validate() {
-        return CompatibilityChecker.check(this);
+        return CompatibilityChecker.check(this, rules);
+    }
+
+    /** Replaces the rule chain (Chain of Responsibility), e.g. to add a store-specific rule. */
+    public PCBuilder rules(CompatibilityRule chain) {
+        this.rules = chain;
+        return this;
+    }
+
+    private CompatibilityRule rules = CompatibilityRules.standardChain();
+
+    // ---- read-only view used by the compatibility rules
+    public Parts.Cpu getCpu() { return cpu; }
+    public Parts.Motherboard getMotherboard() { return motherboard; }
+    public Parts.Ram getRam() { return ram; }
+    public int getRamModules() { return ramModules; }
+    public Parts.Gpu getGpu() { return gpu; }
+    public List<Parts.Storage> getDrives() { return java.util.Collections.unmodifiableList(drives); }
+    public Parts.PowerSupply getPsu() { return psu; }
+    public Parts.PcCase getCase() { return pcCase; }
+
+    /** Every part that draws power (RAM counted once per module). */
+    public List<Component> loadParts() {
+        List<Component> list = new ArrayList<>();
+        if (cpu != null) list.add(cpu);
+        if (motherboard != null) list.add(motherboard);
+        if (ram != null) for (int i = 0; i < ramModules; i++) list.add(ram);
+        if (gpu != null) list.add(gpu);
+        list.addAll(drives);
+        return list;
     }
 
     public int recommendedPsuWatts() {

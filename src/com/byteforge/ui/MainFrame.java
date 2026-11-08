@@ -169,7 +169,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         }
 
         JPanel compat = new JPanel(new BorderLayout(4, 4));
-        compat.setBorder(titled("2. Compatibility check (Builder)"));
+        compat.setBorder(titled("2. Compatibility check (Builder + Chain of Responsibility, " + com.byteforge.rules.CompatibilityRules.namesOf(com.byteforge.rules.CompatibilityRules.standardChain()).size() + " rules)"));
         statusLabel.setFont(statusLabel.getFont().deriveFont(Font.BOLD, 14f));
         issuesArea.setEditable(false);
         issuesArea.setLineWrap(true);

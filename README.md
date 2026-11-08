@@ -2,7 +2,7 @@
 
 Final project for the Software Design Patterns course. A Java Swing application where customers
 configure a custom computer, get a live hardware compatibility check, undo/redo their changes,
-add services, choose a pricing policy, track and cancel their order. Ten design patterns work together.
+add services, choose a pricing policy, track and cancel their order. Eleven design patterns work together.
 
 | Pattern   | Where                                          | Author    |
 |-----------|------------------------------------------------|-----------|
@@ -13,6 +13,7 @@ add services, choose a pricing policy, track and cancel their order. Ten design 
 | Builder   | `builder/PCBuilder`, `BuildDirector`           | Student 2 |
 | Decorator | `decorator/AddOnDecorator`, `AddOns`           | Student 2 |
 | Command   | `command/ConfigCommands`, `CommandHistory`     | Student 2 |
+| Chain of Responsibility | `rules/CompatibilityRules`       | Student 3 |
 | Strategy  | `strategy/PricingStrategy`                     | Student 3 |
 | Observer  | `observer/Order`, `Listeners`                  | Student 3 |
 | Facade    | `facade/StoreFacade`                           | Student 3 |
@@ -23,7 +24,7 @@ Requires JDK 11+.
 
 - `run.bat` - start the GUI
 - `run.bat --console` - console demo of all patterns
-- `run.bat --test` - 38 automated tests (no external libraries)
+- `run.bat --test` - 44 automated tests (no external libraries)
 - `run.bat --screenshots docs\screenshots` - regenerate report screenshots
 - IntelliJ IDEA: open the folder and use the run configurations
   *ByteForge GUI*, *ByteForge Console demo* or *ByteForge Tests*.
