@@ -409,11 +409,14 @@ public final class PatternTests {
         // ---- Command
         Map<ComponentType, Component> sel = new EnumMap<>(ComponentType.class);
         int[] ram = {2};
+        Component[] second = {null};
         ConfigurationEditor editor = new ConfigurationEditor() {
             public Component getPart(ComponentType t) { return sel.get(t); }
             public void setPart(ComponentType t, Component c) { sel.put(t, c); }
             public int getRamModules() { return ram[0]; }
             public void setRamModules(int m) { ram[0] = m; }
+            public Component getSecondDrive() { return second[0]; }
+            public void setSecondDrive(Component c) { second[0] = c; }
         };
         test("Command", "undo restores the previous part, redo re-applies", () -> {
             sel.clear();
@@ -447,6 +450,29 @@ public final class PatternTests {
             check(h.canRedo(), "redo should be possible");
             h.execute(new ConfigCommands.SelectPart(editor, ComponentType.CASE, sku("PH-4002")));
             check(!h.canRedo(), "redo stack should be empty");
+        });
+        test("Command", "second drive can be set, undone and cleared", () -> {
+            second[0] = null;
+            CommandHistory h = new CommandHistory(10);
+            h.execute(new ConfigCommands.SelectSecondDrive(editor, null, sku("PH-3003")));
+            eq("PH-3003", second[0].getSku());
+            h.execute(new ConfigCommands.SelectSecondDrive(editor, second[0], null));
+            eq(null, second[0]);
+            h.undo();
+            eq("PH-3003", second[0].getSku());
+            h.undo();
+            eq(null, second[0]);
+        });
+        test("Command", "editors without a second drive slot refuse it", () -> {
+            ConfigurationEditor plain = new ConfigurationEditor() {
+                public Component getPart(ComponentType t) { return null; }
+                public void setPart(ComponentType t, Component c) { }
+                public int getRamModules() { return 1; }
+                public void setRamModules(int m) { }
+            };
+            eq(null, plain.getSecondDrive());
+            expect(UnsupportedOperationException.class,
+                    () -> new ConfigCommands.SelectSecondDrive(plain, null, sku("PH-3003")).execute());
         });
         test("Command", "history is limited", () -> {
             CommandHistory h = new CommandHistory(3);

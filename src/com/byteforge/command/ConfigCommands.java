@@ -38,6 +38,25 @@ public final class ConfigCommands {
         }
     }
 
+    /** Sets or clears the optional second storage drive. */
+    public static class SelectSecondDrive implements Command {
+        private final ConfigurationEditor editor;
+        private final Component oldDrive;
+        private final Component newDrive;
+
+        public SelectSecondDrive(ConfigurationEditor editor, Component oldDrive, Component newDrive) {
+            this.editor = editor;
+            this.oldDrive = oldDrive;
+            this.newDrive = newDrive;
+        }
+
+        @Override public void execute() { editor.setSecondDrive(newDrive); }
+        @Override public void undo()    { editor.setSecondDrive(oldDrive); }
+        @Override public String getName() {
+            return "Second drive -> " + (newDrive == null ? "none" : newDrive.getName());
+        }
+    }
+
     /** Changes the number of RAM modules. */
     public static class ChangeRamModules implements Command {
         private final ConfigurationEditor editor;

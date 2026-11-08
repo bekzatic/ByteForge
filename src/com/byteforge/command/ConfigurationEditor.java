@@ -16,4 +16,13 @@ public interface ConfigurationEditor {
     int getRamModules();
 
     void setRamModules(int modules);
+
+    /** Optional second storage drive (null = none). Editors without one keep the defaults. */
+    default Component getSecondDrive() {
+        return null;
+    }
+
+    default void setSecondDrive(Component drive) {
+        throw new UnsupportedOperationException("This editor has no second drive slot");
+    }
 }

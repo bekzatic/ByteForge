@@ -47,6 +47,8 @@ ByteForge pattern tests
   PASS  Command    undo restores the previous part, redo re-applies
   PASS  Command    macro command is undone as one step
   PASS  Command    a new command clears the redo stack
+  PASS  Command    second drive can be set, undone and cleared
+  PASS  Command    editors without a second drive slot refuse it
   PASS  Command    history is limited
 =======================
-48 passed, 0 failed
+50 passed, 0 failed

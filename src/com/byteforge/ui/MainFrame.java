@@ -88,6 +88,8 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     private final CommandHistory history = new CommandHistory(100);
     private final Map<ComponentType, Component> lastParts = new EnumMap<>(ComponentType.class);
     private int lastRamModules = 2;
+    private Component lastSecondDrive;
+    private final JComboBox<Object> secondDrivePicker = new JComboBox<>();
     private boolean batch;
     private final JButton undoButton = new JButton("Undo  (Ctrl+Z)");
     private final JButton redoButton = new JButton("Redo  (Ctrl+Y)");
@@ -109,7 +111,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         tabs.setBorder(new EmptyBorder(6, 8, 0, 8));
 
         JScrollPane logScroll = new JScrollPane(logArea);
-        logScroll.setPreferredSize(new Dimension(100, 170));
+        logScroll.setPreferredSize(new Dimension(100, 140));
         JPanel logPanel = new JPanel(new BorderLayout());
         logPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(4, 8, 8, 8),
                 titled("Event log (Observer notifications)")));
@@ -175,6 +177,13 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
                 ramModules.addChangeListener(e -> onRamModulesChangedByUser());
                 addRow(left, g, "RAM modules", ramModules);
             }
+            if (type == ComponentType.STORAGE) {
+                secondDrivePicker.addItem("(none - optional second drive)");
+                for (Component c : store.getParts(ComponentType.STORAGE)) secondDrivePicker.addItem(c);
+                secondDrivePicker.setRenderer(new PartRenderer());
+                secondDrivePicker.addActionListener(e -> onSecondDriveChangedByUser());
+                addRow(left, g, "Storage 2", secondDrivePicker);
+            }
         }
 
         JPanel compat = new JPanel(new BorderLayout(4, 4));
@@ -186,7 +195,11 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         issuesArea.setOpaque(false);
         powerBar.setStringPainted(true);
         compat.add(statusLabel, BorderLayout.NORTH);
-        compat.add(issuesArea, BorderLayout.CENTER);
+        JScrollPane issuesScroll = new JScrollPane(issuesArea); // long summaries scroll instead of being cut off
+        issuesScroll.setBorder(BorderFactory.createEmptyBorder());
+        issuesScroll.getViewport().setOpaque(false);
+        issuesScroll.setOpaque(false);
+        compat.add(issuesScroll, BorderLayout.CENTER);
         compat.add(powerBar, BorderLayout.SOUTH);
         g.gridx = 0; g.gridwidth = 2; g.weighty = 1; g.fill = GridBagConstraints.BOTH;
         left.add(compat, g);
@@ -407,6 +420,10 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         addIfChanged(macro, ComponentType.STORAGE, c.getDrives().get(0));
         addIfChanged(macro, ComponentType.PSU, c.getPsu());
         addIfChanged(macro, ComponentType.CASE, c.getCase());
+        Component second = c.getDrives().size() > 1 ? c.getDrives().get(1) : null;
+        if (getSecondDrive() != second) {
+            macro.add(new ConfigCommands.SelectSecondDrive(this, getSecondDrive(), second));
+        }
         if (getRamModules() != c.getRamModules()) {
             macro.add(new ConfigCommands.ChangeRamModules(this, getRamModules(), c.getRamModules()));
         }
@@ -453,6 +470,32 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     @Override
     public int getRamModules() {
         return (Integer) ramModules.getValue();
+    }
+
+    @Override
+    public Component getSecondDrive() {
+        Object item = secondDrivePicker.getSelectedItem();
+        return item instanceof Component ? (Component) item : null;
+    }
+
+    @Override
+    public void setSecondDrive(Component drive) {
+        updating = true;
+        try {
+            if (drive == null) secondDrivePicker.setSelectedIndex(0); else secondDrivePicker.setSelectedItem(drive);
+        } finally {
+            updating = false;
+        }
+        if (!batch) refresh();
+    }
+
+    private void onSecondDriveChangedByUser() {
+        if (updating) return;
+        Component now = getSecondDrive();
+        if (now != lastSecondDrive) {
+            history.record(new ConfigCommands.SelectSecondDrive(this, lastSecondDrive, now));
+        }
+        refresh();
     }
 
     @Override
@@ -552,6 +595,9 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         if (ram instanceof Parts.Ram) {
             b.ram((Parts.Ram) ram, (Integer) ramModules.getValue());
         }
+        if (getSecondDrive() instanceof Parts.Storage) {
+            b.addDrive((Parts.Storage) getSecondDrive());
+        }
         return store.nameBuild(b); // preset name only if every part matches the recipe
     }
 
@@ -563,6 +609,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
             lastParts.put(t, getPart(t));
         }
         lastRamModules = getRamModules();
+        lastSecondDrive = getSecondDrive();
         updateHistoryButtons();
 
         PCBuilder b = builderFromUi();
@@ -736,6 +783,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
 
     private void refreshPickerLabels() {
         pickers.values().forEach(JComboBox::repaint);
+        secondDrivePicker.repaint();
     }
 
     void log(String message) {

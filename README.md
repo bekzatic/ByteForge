@@ -44,7 +44,7 @@ Requires JDK 11+.
 |---|---|
 | `run.bat` | start the GUI |
 | `run.bat --console` | console demo that walks through every pattern |
-| `run.bat --test` | 48 automated tests (no external libraries) |
+| `run.bat --test` | 50 automated tests (no external libraries) |
 | `run.bat --screenshots docs\screenshots` | regenerate the report screenshots |
 
 - **IntelliJ IDEA:** open the folder and use the run configurations
