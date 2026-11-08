@@ -108,6 +108,12 @@ public final class ScreenshotTour {
         f.selectOrder(2);                                                  // hint: cannot cancel
         shot(f, new File(dir, "05_orders_observer.png"));
 
+        // order details window of the workstation order (decorator line items, payment, state)
+        JPanel details = new JPanel(new BorderLayout());
+        details.setBorder(BorderFactory.createTitledBorder("Order " + f.orderAt(2).getId() + " - details"));
+        details.add(f.orderDetailsPanel(f.orderAt(2)));
+        shotComponent(details, new File(dir, "07_order_details.png"));
+
         f.tabs().setSelectedIndex(2);
         f.restockPart(part("PH-2003"), 3);          // purchasing receives three RTX 4090
         f.setInventoryFilter("", 0, true);          // show only parts that are running low
@@ -117,6 +123,28 @@ public final class ScreenshotTour {
 
     private static Component part(String sku) {
         return Inventory.getInstance().findBySku(sku);
+    }
+
+    /** Renders a component that is not on screen (laid out at its preferred size). */
+    private static void shotComponent(JComponent c, File file) throws Exception {
+        c.setSize(c.getPreferredSize());
+        layoutTree(c);
+        BufferedImage img = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(UIManager.getColor("Panel.background"));
+        g.fillRect(0, 0, c.getWidth(), c.getHeight());
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+        c.printAll(g);
+        g.dispose();
+        ImageIO.write(img, "png", file);
+        System.out.println("Saved " + file.getPath());
+    }
+
+    private static void layoutTree(java.awt.Component c) {
+        c.doLayout();
+        if (c instanceof Container) {
+            for (java.awt.Component child : ((Container) c).getComponents()) layoutTree(child);
+        }
     }
 
     private static void shot(MainFrame f, File file) throws Exception {

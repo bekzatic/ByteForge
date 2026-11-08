@@ -67,7 +67,7 @@ Requires JDK 11+.
 |---|---|
 | ![Incompatible build](docs/screenshots/02_incompatible_build.png) Rule chain rejects an incompatible build | ![Undo](docs/screenshots/03_undo_command.png) Three changes undone with Command |
 | ![Corporate quote](docs/screenshots/04_corporate_quote.png) Corporate bulk pricing (Strategy) | ![Orders](docs/screenshots/05_orders_observer.png) Order states, cancellation and notifications |
-| ![Inventory](docs/screenshots/06_inventory_singleton.png) Shared inventory, low-stock filter and restock | |
+| ![Inventory](docs/screenshots/06_inventory_singleton.png) Shared inventory, low-stock filter and restock | ![Order details](docs/screenshots/07_order_details.png) Order details: decorator line items, payment and state |
 
 ## Report
 

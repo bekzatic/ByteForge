@@ -685,18 +685,28 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     void showOrderDetails() {
         Order o = selectedOrder();
         if (o == null) return;
-        String text = store.orderDetails(o);
         if (headless) {
             log("[GUI] Details of " + o.getId() + " opened");
             return;
         }
-        JTextArea area = new JTextArea(text);
+        JOptionPane.showMessageDialog(this, orderDetailsPanel(o), "Order " + o.getId(), JOptionPane.PLAIN_MESSAGE);
+    }
+
+    /** The content of the order details window (also used by the screenshot tour). */
+    JComponent orderDetailsPanel(Order o) {
+        JTextArea area = new JTextArea(store.orderDetails(o));
         area.setFont(MONO);
         area.setEditable(false);
+        area.setLineWrap(true);       // long product names wrap instead of scrolling sideways
+        area.setWrapStyleWord(true);
         area.setCaretPosition(0);
         JScrollPane scroll = new JScrollPane(area);
-        scroll.setPreferredSize(new Dimension(560, 380));
-        JOptionPane.showMessageDialog(this, scroll, "Order " + o.getId(), JOptionPane.PLAIN_MESSAGE);
+        scroll.setPreferredSize(new Dimension(600, 400));
+        return scroll;
+    }
+
+    Order orderAt(int index) {
+        return store.getOrders().get(index);
     }
 
     private void afterOrderChange(Order o) {

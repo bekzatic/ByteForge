@@ -1011,6 +1011,11 @@ sequenceDiagram
     <img src="../screenshots/06_inventory_singleton.png" alt="Inventory">
     <figcaption>Figure 5.6 &ndash; Inventory tab of the single shared stock (<b>Singleton</b>) imported through <b>Adapter</b> + <b>Factory</b>, filtered to "low stock only". Three RTX 4090 were just restocked, so the card left the list; the event log shows the delivery.</figcaption>
   </figure>
+
+  <figure>
+    <img src="../screenshots/07_order_details.png" alt="Order details" style="max-width:75%">
+    <figcaption>Figure 5.7 &ndash; Order details window (double-click an order): one line per <b>decorator</b> in the chain, the pricing <b>strategy</b> and its discount, the payment transaction and the current <b>state</b> with its hint. The text is produced by <code>StoreFacade.orderDetails()</code>.</figcaption>
+  </figure>
 </section>
 
 <!-- ============================================================ 6 TESTING -->
