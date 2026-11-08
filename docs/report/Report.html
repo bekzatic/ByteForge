@@ -54,13 +54,13 @@
   <div class="mid">
     <div class="t1">Final Project Report</div>
     <div class="t2">ByteForge</div>
-    <div class="t3">Custom PC Configurator &amp; Computer Store<br>built with nine cooperating design patterns</div>
+    <div class="t3">Custom PC Configurator &amp; Computer Store<br>built with eleven cooperating design patterns</div>
   </div>
   <table>
     <tr><th>Team members</th><th>Patterns implemented</th></tr>
-    <tr><td>Student 1: [Full name], [group]</td><td>Singleton, Factory, Adapter</td></tr>
+    <tr><td>Student 1: [Full name], [group]</td><td>Singleton, Factory, Adapter, State</td></tr>
     <tr><td>Student 2: [Full name], [group]</td><td>Builder (+ Director), Decorator, Command</td></tr>
-    <tr><td>Student 3: [Full name], [group]</td><td>Strategy, Observer, Facade</td></tr>
+    <tr><td>Student 3: [Full name], [group]</td><td>Strategy, Observer, Facade, Chain of Responsibility</td></tr>
     <tr><td>Supervisor</td><td>[Senior Lecturer name]</td></tr>
   </table>
   <div class="bottom">[City], 2026</div>
@@ -83,6 +83,8 @@
         <li>3.7 Observer &mdash; order and stock events</li>
         <li>3.8 Facade &mdash; StoreFacade</li>
         <li>3.9 Command &mdash; undo / redo</li>
+        <li>3.10 State &mdash; order life cycle</li>
+        <li>3.11 Chain of Responsibility &mdash; compatibility rules</li>
       </ol>
     </li>
     <li>4. How the patterns cooperate</li>
@@ -104,7 +106,7 @@
 
   <h2>1.2 Objectives</h2>
   <ul>
-    <li>Build one cohesive Java application in which <b>at least six</b> design patterns from the course work together. We implemented <b>nine</b>: Singleton, Factory, Adapter, Builder, Decorator, Strategy, Observer, Facade and Command.</li>
+    <li>Build one cohesive Java application in which <b>at least six</b> design patterns from the course work together. We implemented <b>eleven</b>: Singleton, Factory, Adapter, Builder, Decorator, Facade, Strategy, Observer, Command, State and Chain of Responsibility.</li>
     <li>Each team member implements at least two patterns (see the cover page for the split).</li>
     <li>Show every pattern running in a graphical user interface and in a console demonstration, and verify it with automated tests.</li>
     <li>Document the design with UML class and sequence diagrams.</li>
@@ -116,21 +118,23 @@
     <tr><td>Language</td><td>Java 11+ (developed and tested with JDK 17, Temurin)</td></tr>
     <tr><td>User interface</td><td>Java Swing with the Nimbus look and feel</td></tr>
     <tr><td>Build</td><td>Plain <code>javac</code> (no external libraries); <code>run.bat</code> script; ready-made IntelliJ IDEA project with run configurations</td></tr>
-    <tr><td>Testing</td><td>Own dependency-free test runner (<code>run.bat --test</code>), 34 automated tests</td></tr>
+    <tr><td>Testing</td><td>Own dependency-free test runner (<code>run.bat --test</code>), 45 automated tests</td></tr>
     <tr><td>Diagrams</td><td>UML class and sequence diagrams (Mermaid notation)</td></tr>
-    <tr><td>Size</td><td>39 source files, about 3,300 lines of code, 10 packages</td></tr>
+    <tr><td>Size</td><td>43 source files, about 4,000 lines of code, 12 packages</td></tr>
   </table>
 
   <h2>1.4 Main features</h2>
   <ul>
     <li>Catalog of 23 real-world parts imported from two simulated suppliers with incompatible data formats (CSV text and JSON-like REST data).</li>
     <li>Three presets (Office Starter, Gaming Pro, Creator Workstation) and free part selection.</li>
-    <li>Live compatibility check: CPU socket, RAM type, number of RAM modules, motherboard form factor vs. case, GPU length vs. case clearance, missing integrated graphics, PSU wattage with 25&nbsp;% headroom.</li>
+    <li>Live compatibility check by a chain of nine rules: required parts, CPU socket, RAM type, RAM slots (2 on mini-ITX boards), motherboard form factor vs. case, GPU length vs. case clearance, drive bays, missing integrated graphics, PSU wattage with 25&nbsp;% headroom.</li>
     <li>Stackable services: Windows installation, ARGB lighting kit, overclocking, extended warranty (priced as a percentage of everything it wraps).</li>
     <li>Four pricing policies: regular, student, corporate bulk tiers and a seasonal sale.</li>
     <li>Unlimited <b>undo / redo</b> (Ctrl+Z / Ctrl+Y) of every configuration change; loading a preset is undone as one step.</li>
     <li>Checkout with a realistic two-step payment: the card is <i>authorized</i> first, stock is reserved, then the payment is <i>captured</i>. A declined card never touches the inventory; if stock is short, the card hold is released.</li>
     <li>Order tracking with notifications to the customer, the workshop and a sales dashboard; low-stock alerts to purchasing.</li>
+    <li>Order cancellation with refund and automatic return of parts to stock, allowed only before assembly starts.</li>
+    <li>Inventory screen with search, category and low-stock filters, and restocking.</li>
   </ul>
 </section>
 
@@ -151,8 +155,10 @@
     <tr><td><code>observer</code></td><td>Orders, order status and event listeners</td><td>Observer</td></tr>
     <tr><td><code>facade</code></td><td>One simple API for the UI: catalog, quote, checkout, tracking</td><td>Facade</td></tr>
     <tr><td><code>command</code></td><td>Undoable configuration changes and their history</td><td>Command</td></tr>
+    <tr><td><code>state</code></td><td>Behaviour of each step of the order life cycle</td><td>State</td></tr>
+    <tr><td><code>rules</code></td><td>Hardware compatibility rules linked into a chain</td><td>Chain of Responsibility</td></tr>
     <tr><td><code>ui</code></td><td>Swing window and the screenshot tour</td><td>&mdash;</td></tr>
-    <tr><td><code>test/</code></td><td>34 automated tests for all patterns</td><td>&mdash;</td></tr>
+    <tr><td><code>test/</code></td><td>45 automated tests for all patterns</td><td>&mdash;</td></tr>
   </table>
 
   <div class="uml">
@@ -160,6 +166,8 @@
 flowchart LR
   UI["Swing UI / Console demo"] --&gt; F["StoreFacade<br/>(Facade)"]
   UI --&gt; CMD["CommandHistory + commands<br/>(Command)"]
+  B --&gt; R["CompatibilityRule chain<br/>(Chain of Responsibility)"]
+  O --&gt; ST["OrderState objects<br/>(State)"]
   F --&gt; AD["SupplierFeed adapters<br/>(Adapter)"]
   AD --&gt; FA["ComponentFactory<br/>(Factory)"]
   FA --&gt; INV["Inventory<br/>(Singleton)"]
@@ -237,6 +245,8 @@ classDiagram
     <tr><td>7</td><td>Observer</td><td>Behavioral</td><td><code>Order</code>, <code>OrderObserver</code>, <code>StockObserver</code>, <code>Listeners.*</code></td><td>Student 3</td></tr>
     <tr><td>8</td><td>Facade</td><td>Structural</td><td><code>StoreFacade</code></td><td>Student 3</td></tr>
     <tr><td>9</td><td>Command</td><td>Behavioral</td><td><code>Command</code>, <code>ConfigCommands.*</code>, <code>CommandHistory</code></td><td>Student 2</td></tr>
+    <tr><td>10</td><td>State</td><td>Behavioral</td><td><code>OrderState</code>, <code>OrderStates.*</code>, <code>Order</code> (context)</td><td>Student 1</td></tr>
+    <tr><td>11</td><td>Chain of Responsibility</td><td>Behavioral</td><td><code>CompatibilityRule</code>, <code>CompatibilityRules.*</code></td><td>Student 3</td></tr>
   </table>
 
   <!-- ---------------- Singleton -->
@@ -456,10 +466,10 @@ public Computer build() {
     return new Computer(this);
 }
 
-// One of the compatibility rules
-if (b.gpu != null &amp;&amp; b.pcCase != null &amp;&amp; b.gpu.getLengthMm() &gt; b.pcCase.getMaxGpuLengthMm())
-    issues.add("Graphics card is " + b.gpu.getLengthMm() + " mm but the case fits only "
-            + b.pcCase.getMaxGpuLengthMm() + " mm.");</pre>
+// validate() hands the builder to the chain of compatibility rules (Section 3.11)
+public List&lt;String&gt; validate() {
+    return CompatibilityChecker.check(this, rules);   // rules = CompatibilityRules.standardChain()
+}</pre>
 
   <!-- ---------------- Decorator -->
   <h2>3.5 Decorator &mdash; service add-ons <span class="tag">Structural</span></h2>
@@ -595,6 +605,7 @@ classDiagram
     TESTING
     SHIPPED
     DELIVERED
+    CANCELLED
   }
   Order --&gt; "*" OrderObserver
   Order --&gt; OrderStatus
@@ -758,6 +769,135 @@ public class CommandHistory {                               // the invoker
         Command c = redoStack.pop(); c.execute(); undoStack.push(c); return c;
     }
 }</pre>
+
+  <!-- ---------------- State -->
+  <h2>3.10 State &mdash; order life cycle <span class="tag">Behavioral</span></h2>
+  <p><b>Problem.</b> What an order may do depends on its step. A paid order waiting in the queue may be cancelled with a full refund; an order on the workbench may not; a delivered or cancelled order must not move any further. Writing this as <code>if (status == PAID || status == PLACED)</code> in every method of <code>Order</code>, the facade and the GUI spreads the rules everywhere and breaks as soon as a new step (e.g. "returned") is added.</p>
+  <p><b>Solution.</b> Each step is a class implementing <code>OrderState</code> with <code>advance()</code>, <code>cancel()</code>, <code>canCancel()</code> and <code>hint()</code>. <code>Order</code> is the <i>context</i>: it keeps a reference to its current state and delegates to it. States decide the next step themselves (<code>Paid.advance()</code> switches to <code>Assembling</code>), and <code>Order.changeState()</code> notifies the observers, so State and Observer work together. Common behaviour sits in small abstract bases: <code>Cancellable</code> (PLACED, PAID) and <code>Final</code> (DELIVERED, CANCELLED, which reject any further step). States hold no data, so each is a shared constant. The GUI simply asks <code>order.canCancel()</code> to enable or disable the "Cancel" button.</p>
+  <div class="uml"><div class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --&gt; PLACED
+  PLACED --&gt; PAID : advance
+  PAID --&gt; ASSEMBLING : advance
+  ASSEMBLING --&gt; TESTING : advance
+  TESTING --&gt; SHIPPED : advance
+  SHIPPED --&gt; DELIVERED : advance
+  PLACED --&gt; CANCELLED : cancel
+  PAID --&gt; CANCELLED : cancel (refund + restock)
+  DELIVERED --&gt; [*]
+  CANCELLED --&gt; [*]
+  </div></div>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction LR
+  class Order {
+    -OrderState state
+    +advance()
+    +cancel(String reason)
+    +canCancel() boolean
+    +changeState(OrderState)
+  }
+  class OrderState {
+    &lt;&lt;interface&gt;&gt;
+    +getStatus() OrderStatus
+    +advance(Order)
+    +cancel(Order, String)
+    +canCancel() boolean
+    +hint() String
+  }
+  class Cancellable { &lt;&lt;abstract&gt;&gt; }
+  class Final { &lt;&lt;abstract&gt;&gt; }
+  Order --&gt; OrderState : current
+  OrderState &lt;|.. Cancellable
+  OrderState &lt;|.. Assembling
+  OrderState &lt;|.. Testing
+  OrderState &lt;|.. Shipped
+  OrderState &lt;|.. Final
+  Cancellable &lt;|-- Placed
+  Cancellable &lt;|-- Paid
+  Final &lt;|-- Delivered
+  Final &lt;|-- Cancelled
+  </div></div>
+<pre>public class Order {                                   // the context
+    private OrderState state = OrderStates.PLACED;
+    public void advance()               { state.advance(this); }
+    public void cancel(String reason)   { state.cancel(this, reason); }
+    public boolean canCancel()          { return state.canCancel(); }
+
+    public void changeState(OrderState next) {         // called by the states
+        OrderStatus old = state.getStatus();
+        state = next;
+        for (OrderObserver o : observers) o.onStatusChanged(this, old, next.getStatus());
+    }
+}
+
+static final class Paid extends Cancellable {
+    public OrderStatus getStatus()     { return OrderStatus.PAID; }
+    public void advance(Order order)   { order.changeState(ASSEMBLING); }
+}
+
+static final class Assembling extends Base {          // Base.cancel() throws
+    public void advance(Order order)   { order.changeState(TESTING); }
+    protected String whyNoCancel()     { return "the PC is already being assembled"; }
+}</pre>
+
+  <!-- ---------------- Chain of Responsibility -->
+  <h2>3.11 Chain of Responsibility &mdash; compatibility rules <span class="tag">Behavioral</span></h2>
+  <p><b>Problem.</b> The first version checked compatibility in one long method with a dozen <code>if</code> blocks. Every new rule (for example, mini-ITX boards have only two RAM slots, small cases have fewer drive bays) made that method longer, and a shop could not add its own rule (such as a budget limit for a school order) without editing it.</p>
+  <p style="text-align:left"><b>Solution.</b> Every rule is a handler extending <code>CompatibilityRule</code>. A handler checks one concern, records problems and passes the request to the next handler. <code>handle()</code> is a template that runs <code>check()</code> and then forwards; a rule may override <code>shouldContinue()</code> to stop the chain. <code>CompatibilityRules.standardChain()</code> links nine rules, and the builder only knows the first link. A different chain can be given to a builder with <code>rules(chain)</code>; the tests append a custom budget rule this way without changing any existing class. By default all rules run so the customer sees every problem at once.</p>
+  <div class="uml"><div class="mermaid">
+classDiagram
+  direction TB
+  class CompatibilityRule {
+    &lt;&lt;abstract&gt;&gt;
+    -CompatibilityRule next
+    +then(CompatibilityRule) CompatibilityRule
+    +handle(PCBuilder, List~String~)
+    #check(PCBuilder, List~String~)*
+    #shouldContinue(PCBuilder, List~String~) boolean
+    +getName()* String
+  }
+  CompatibilityRule --&gt; CompatibilityRule : next
+  CompatibilityRule &lt;|-- RequiredParts
+  CompatibilityRule &lt;|-- CpuSocket
+  CompatibilityRule &lt;|-- MemoryType
+  CompatibilityRule &lt;|-- MemorySlots
+  CompatibilityRule &lt;|-- BoardFitsCase
+  CompatibilityRule &lt;|-- GpuClearance
+  CompatibilityRule &lt;|-- DriveBays
+  CompatibilityRule &lt;|-- IntegratedGraphics
+  CompatibilityRule &lt;|-- PowerBudget
+  PCBuilder --&gt; CompatibilityRule : first link
+  </div></div>
+<pre>public abstract class CompatibilityRule {
+    private CompatibilityRule next;
+    public CompatibilityRule then(CompatibilityRule next) { this.next = next; return next; }
+
+    public final void handle(PCBuilder build, List&lt;String&gt; issues) {
+        check(build, issues);
+        if (next != null &amp;&amp; shouldContinue(build, issues)) next.handle(build, issues);
+    }
+    protected abstract void check(PCBuilder build, List&lt;String&gt; issues);
+    protected boolean shouldContinue(PCBuilder build, List&lt;String&gt; issues) { return true; }
+}
+
+public static CompatibilityRule standardChain() {
+    CompatibilityRule first = new RequiredParts();
+    first.then(new CpuSocket()).then(new MemoryType()).then(new MemorySlots())
+         .then(new BoardFitsCase()).then(new GpuClearance()).then(new DriveBays())
+         .then(new IntegratedGraphics()).then(new PowerBudget());
+    return first;
+}
+
+public static class GpuClearance extends CompatibilityRule {
+    protected void check(PCBuilder b, List&lt;String&gt; issues) {
+        if (b.getGpu() != null &amp;&amp; b.getCase() != null
+                &amp;&amp; b.getGpu().getLengthMm() &gt; b.getCase().getMaxGpuLengthMm())
+            issues.add("Graphics card is " + b.getGpu().getLengthMm() + " mm but the case fits only "
+                    + b.getCase().getMaxGpuLengthMm() + " mm.");
+    }
+}</pre>
 </section>
 
 <!-- ============================================================ 4 COOPERATION -->
@@ -789,7 +929,7 @@ sequenceDiagram
   </div></div>
 
   <h2>4.2 Checkout and order tracking</h2>
-  <p>Builder &rarr; Facade &rarr; Decorator &rarr; Strategy &rarr; Singleton &rarr; Observer.</p>
+  <p>Builder + Chain of Responsibility &rarr; Facade &rarr; Decorator &rarr; Strategy &rarr; Singleton &rarr; Observer &rarr; State.</p>
   <div class="uml"><div class="mermaid">
 sequenceDiagram
   participant UI as MainFrame
@@ -820,6 +960,10 @@ sequenceDiagram
   UI-&gt;&gt;F: advanceOrder(order)
   F-&gt;&gt;O: advance()
   O-&gt;&gt;L: onStatusChanged (ASSEMBLING ... DELIVERED)
+  UI-&gt;&gt;F: cancelOrder(order) [only while PAID]
+  F-&gt;&gt;O: cancel(reason) - current OrderState decides
+  F-&gt;&gt;G: refund(transaction)
+  F-&gt;&gt;I: restock(parts)
   </div></div>
 </section>
 
@@ -850,12 +994,12 @@ sequenceDiagram
 
   <figure>
     <img src="../screenshots/05_orders_observer.png" alt="Orders">
-    <figcaption>Figure 5.5 &ndash; Orders tab: three orders in different states. Every status change is pushed to the customer, the workshop and the sales dashboard (<b>Observer</b>).</figcaption>
+    <figcaption>Figure 5.5 &ndash; Orders tab: four orders in different <b>states</b>. BF-1004 was cancelled while PAID (refund + parts back to stock); for the selected BF-1003 (ASSEMBLING) the state disables the Cancel button. Every change is pushed to the customer, workshop and dashboard (<b>Observer</b>).</figcaption>
   </figure>
 
   <figure>
     <img src="../screenshots/06_inventory_singleton.png" alt="Inventory">
-    <figcaption>Figure 5.6 &ndash; Inventory tab: the single shared stock (<b>Singleton</b>) of parts imported from two suppliers (<b>Adapter</b> + <b>Factory</b>). Low-stock rows are highlighted.</figcaption>
+    <figcaption>Figure 5.6 &ndash; Inventory tab of the single shared stock (<b>Singleton</b>) imported through <b>Adapter</b> + <b>Factory</b>, filtered to "low stock only". Three RTX 4090 were just restocked, so the card left the list; the event log shows the delivery.</figcaption>
   </figure>
 </section>
 
@@ -863,7 +1007,7 @@ sequenceDiagram
 <section class="chapter">
   <h1>6. Testing and results</h1>
   <h2>6.1 Automated tests</h2>
-  <p>The project contains its own small test runner (<code>test/com/byteforge/PatternTests.java</code>) so that the tests run on any machine with a JDK, without downloading JUnit. Every test starts from a freshly loaded catalog. Command: <code>run.bat --test</code> (exit code 1 if any test fails). Result of the last run: <b>34 passed, 0 failed</b>.</p>
+  <p>The project contains its own small test runner (<code>test/com/byteforge/PatternTests.java</code>) so that the tests run on any machine with a JDK, without downloading JUnit. Every test starts from a freshly loaded catalog. Command: <code>run.bat --test</code> (exit code 1 if any test fails). Result of the last run: <b>45 passed, 0 failed</b>.</p>
   <table>
     <tr><th>Pattern</th><th>Test</th><th>Result</th></tr>
     <tr><td>Singleton</td><td>getInstance() always returns the same object</td><td><b style="color:#1a7f37">Pass</b></td></tr>
@@ -882,6 +1026,12 @@ sequenceDiagram
     <tr><td>Builder</td><td>F-series CPU without GPU is rejected</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>incomplete build lists every missing part</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Builder</td><td>built Computer is immutable</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>standard chain contains 9 rules in a fixed order</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>every rule runs, so all problems are reported at once</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>ITX board accepts at most 2 RAM modules</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>ITX case has only 2 drive bays</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>a new rule can be appended without changing existing ones</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Chain</td><td>a rule can stop the chain</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Decorator</td><td>base price = hardware + assembly</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Decorator</td><td>add-ons stack and describe themselves</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Decorator</td><td>warranty price includes what it wraps</td><td><b style="color:#1a7f37">Pass</b></td></tr>
@@ -890,11 +1040,16 @@ sequenceDiagram
     <tr><td>Strategy</td><td>corporate tiers: 4 = 0%, 5 = 7%, 10 = 12%</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Strategy</td><td>seasonal sale is per unit and never negative</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Observer</td><td>all attached observers receive each change</td><td><b style="color:#1a7f37">Pass</b></td></tr>
-    <tr><td>Observer</td><td>order life cycle ends at DELIVERED</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>State</td><td>life cycle PLACED -&gt; ... -&gt; DELIVERED, then no further step</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>State</td><td>only PLACED and PAID orders can be cancelled</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>State</td><td>cancelling while ASSEMBLING is rejected with a reason</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>State</td><td>cancelled order cannot advance</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>cancelling a paid order refunds and restocks</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Observer</td><td>low-stock alert fires at the threshold</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Facade</td><td>checkout reserves stock, charges and notifies</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Facade</td><td>declined card leaves stock untouched</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Facade</td><td>out of stock releases the card hold</td><td><b style="color:#1a7f37">Pass</b></td></tr>
+    <tr><td>Facade</td><td>restock adds units and rejects non-positive quantities</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Facade</td><td>quote equals the order total</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Command</td><td>undo restores the previous part, redo re-applies</td><td><b style="color:#1a7f37">Pass</b></td></tr>
     <tr><td>Command</td><td>macro command is undone as one step</td><td><b style="color:#1a7f37">Pass</b></td></tr>
@@ -903,7 +1058,7 @@ sequenceDiagram
   </table>
 
   <h2>6.2 Console demonstration</h2>
-  <p>The console mode (<code>run.bat --console</code>) runs a fixed scenario through all nine patterns. Shortened output:</p>
+  <p>The console mode (<code>run.bat --console</code>) runs a fixed scenario through the patterns. Shortened output:</p>
 <pre>=== 2. BUILDER: a rejected custom build ================================
    x CPU socket LGA1700 does not fit motherboard socket AM5.
    x DDR4 memory is not supported by a DDR5 motherboard.
@@ -951,14 +1106,15 @@ sequenceDiagram
 <!-- ============================================================ 7 CONCLUSION -->
 <section class="chapter">
   <h1>7. Conclusion</h1>
-  <p>We designed and implemented ByteForge, a custom PC configurator and computer-store application in Java. The project integrates <b>nine</b> design patterns &mdash; three creational (Singleton, Factory, Builder), three structural (Adapter, Decorator, Facade) and three behavioral (Strategy, Observer, Command) &mdash; into a single working system, exceeding the required six. Every team member implemented three patterns, and all patterns are covered by 34 automated tests.</p>
-  <p>The patterns are not isolated demonstrations: they form one chain. Supplier <b>adapters</b> feed a <b>factory</b> that fills the <b>singleton</b> inventory; the <b>builder</b> guarantees that only physically compatible computers can exist, and every change of the configuration is a <b>command</b> that can be undone; <b>decorators</b> add services; a <b>strategy</b> prices the result; the <b>facade</b> runs checkout; and <b>observers</b> keep customers, the workshop, management and purchasing informed.</p>
+  <p>We designed and implemented ByteForge, a custom PC configurator and computer-store application in Java. The project integrates <b>eleven</b> design patterns &mdash; three creational (Singleton, Factory, Builder), three structural (Adapter, Decorator, Facade) and five behavioral (Strategy, Observer, Command, State, Chain of Responsibility) &mdash; into a single working system, far beyond the required six. Every team member implemented three or four patterns, and all patterns are covered by 45 automated tests.</p>
+  <p>The patterns are not isolated demonstrations: they form one chain. Supplier <b>adapters</b> feed a <b>factory</b> that fills the <b>singleton</b> inventory; the <b>builder</b>, using a <b>chain</b> of compatibility rules, guarantees that only physically compatible computers can exist, and every change of the configuration is a <b>command</b> that can be undone; <b>decorators</b> add services; a <b>strategy</b> prices the result; the <b>facade</b> runs checkout; the order&rsquo;s <b>state</b> decides what may happen next; and <b>observers</b> keep customers, the workshop, management and purchasing informed.</p>
   <p>The main lessons we learned:</p>
   <ul>
     <li>Patterns pay off when requirements change. Adding a new supplier, part type, service, pricing campaign or notification channel requires a new class, not edits throughout the code (Open/Closed principle).</li>
     <li>The Builder's validation turned a domain rule ("only compatible PCs") into a guarantee enforced by the type system: an invalid <code>Computer</code> object cannot be created.</li>
     <li>The Facade kept the GUI thin. The same facade serves the Swing window, the console demo and the tests, and the payment-flow fix (Section 6.3) did not require any GUI change.</li>
     <li>Defining the Command receiver as an interface made undo/redo testable without starting the GUI.</li>
+    <li>Replacing a long method with a Chain of Responsibility and a status switch with State made each rule and each step a small class with one job, which was easy to test in isolation.</li>
     <li>Patterns also have costs: more classes and indirection. We kept each pattern where it solved a real problem in the domain rather than adding patterns for their own sake.</li>
   </ul>
 </section>
@@ -969,8 +1125,7 @@ sequenceDiagram
   <ul>
     <li><b>Persistence.</b> Store the inventory and orders in a database (e.g. PostgreSQL via JDBC) behind a Repository; the Singleton would then wrap a connection pool.</li>
     <li><b>Real supplier integration.</b> Replace the simulated services with real HTTP calls; thanks to the Adapter pattern only the adapter classes change.</li>
-    <li><b>State pattern</b> for the order life cycle, e.g. allow cancellation and refunds only before ASSEMBLING.</li>
-    <li><b>Chain of Responsibility</b> for compatibility rules, so each rule (socket, RAM, power, size) is a separate handler that can be enabled or reordered.</li>
+    <li><b>Returns and warranty claims</b> as new order states (DELIVERED &rarr; RETURN_REQUESTED &rarr; REFUNDED), and a rule editor in the GUI that enables or disables chain links.</li>
     <li><b>Recommendation strategy:</b> suggest the cheapest upgrade that fixes a compatibility problem (e.g. "choose a 1000 W PSU").</li>
     <li><b>Benchmarks:</b> estimate gaming FPS or rendering time per configuration using public benchmark data.</li>
     <li><b>Build tooling:</b> migrate the tests to JUnit 5 with a Maven/Gradle build and CI; a web front end (Spring Boot) reusing the same facade.</li>
@@ -990,7 +1145,7 @@ sequenceDiagram
 │   ├── console_output.txt       full console demo output
 │   └── test_output.txt          full test run output
 ├── test/com/byteforge/
-│   └── PatternTests.java        34 automated tests
+│   └── PatternTests.java        45 automated tests
 └── src/com/byteforge/
     ├── Main.java                entry point
     ├── ConsoleDemo.java         text demo of all patterns
@@ -1004,6 +1159,8 @@ sequenceDiagram
     ├── observer/                Order, OrderStatus, OrderObserver, StockObserver, Listeners
     ├── facade/                  StoreFacade, PaymentGateway, AddOnOption
     ├── command/                 Command, ConfigCommands, CommandHistory, ConfigurationEditor
+    ├── state/                   OrderState, OrderStates
+    ├── rules/                   CompatibilityRule, CompatibilityRules
     └── ui/                      MainFrame, ScreenshotTour</pre>
   <h2>Running</h2>
   <ul>
@@ -1014,11 +1171,12 @@ sequenceDiagram
   <h2>Suggested defense scenario (5 minutes)</h2>
   <ol>
     <li>Start the GUI: the header shows two suppliers imported through <b>adapters</b>; the Inventory tab shows the <b>singleton</b> stock created by the <b>factory</b>.</li>
-    <li>Load "Gaming Pro" (<b>Director</b>), then choose an Intel CPU and the RTX 4090 &rarr; the <b>Builder</b> shows the problems.</li>
+    <li>Load "Gaming Pro" (<b>Director</b>), then choose an Intel CPU and the RTX 4090 &rarr; the rule <b>chain</b> lists the problems and the <b>Builder</b> refuses to build.</li>
     <li>Press Ctrl+Z twice (<b>Command</b>) &rarr; the configuration is valid again.</li>
     <li>Tick Windows + warranty (<b>Decorator</b>), switch customer type (<b>Strategy</b>) and watch the quote change.</li>
     <li>Place the order (<b>Facade</b>), open the Orders tab and advance it &rarr; notifications in the event log (<b>Observer</b>).</li>
-    <li>Try card <b>0000</b> &rarr; payment declined, stock unchanged. Finish with <code>run.bat --test</code>: 34 passed.</li>
+    <li>Place a second order and cancel it while PAID; try to cancel the one being assembled &rarr; refused (<b>State</b>).</li>
+    <li>Try card <b>0000</b> &rarr; payment declined, stock unchanged. Finish with <code>run.bat --test</code>: 45 passed.</li>
   </ol>
 </section>
 

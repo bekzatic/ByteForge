@@ -16,6 +16,12 @@ ByteForge pattern tests
   PASS  Builder    F-series CPU without GPU is rejected
   PASS  Builder    incomplete build lists every missing part
   PASS  Builder    built Computer is immutable
+  PASS  Chain      standard chain contains 9 rules in a fixed order
+  PASS  Chain      every rule runs, so all problems are reported at once
+  PASS  Chain      ITX board accepts at most 2 RAM modules
+  PASS  Chain      ITX case has only 2 drive bays
+  PASS  Chain      a new rule can be appended without changing existing ones
+  PASS  Chain      a rule can stop the chain
   PASS  Decorator  base price = hardware + assembly
   PASS  Decorator  add-ons stack and describe themselves
   PASS  Decorator  warranty price includes what it wraps
@@ -33,10 +39,11 @@ ByteForge pattern tests
   PASS  Facade     checkout reserves stock, charges and notifies
   PASS  Facade     declined card leaves stock untouched
   PASS  Facade     out of stock releases the card hold
+  PASS  Facade     restock adds units and rejects non-positive quantities
   PASS  Facade     quote equals the order total
   PASS  Command    undo restores the previous part, redo re-applies
   PASS  Command    macro command is undone as one step
   PASS  Command    a new command clears the redo stack
   PASS  Command    history is limited
 =======================
-38 passed, 0 failed
+45 passed, 0 failed
