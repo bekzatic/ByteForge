@@ -40,10 +40,11 @@ ByteForge pattern tests
   PASS  Facade     declined card leaves stock untouched
   PASS  Facade     out of stock releases the card hold
   PASS  Facade     restock adds units and rejects non-positive quantities
+  PASS  Facade     order details show items, payment, state and cancel reason
   PASS  Facade     quote equals the order total
   PASS  Command    undo restores the previous part, redo re-applies
   PASS  Command    macro command is undone as one step
   PASS  Command    a new command clears the redo stack
   PASS  Command    history is limited
 =======================
-45 passed, 0 failed
+46 passed, 0 failed

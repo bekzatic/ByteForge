@@ -78,6 +78,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     private final JLabel inventoryCount = new JLabel();
     private final JLabel orderHint =new JLabel("Select an order to see what can happen next.");
     private final JButton cancelButton = new JButton("Cancel selected order");
+    private final JButton detailsButton = new JButton("Details...");
     private final JTabbedPane tabs = new JTabbedPane();
 
     private Computer currentComputer;
@@ -269,6 +270,13 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         cancelButton.setEnabled(false);
         cancelButton.addActionListener(e -> cancelSelected());
         ordersTable.getSelectionModel().addListSelectionListener(e -> updateOrderHint());
+        detailsButton.setEnabled(false);
+        detailsButton.addActionListener(e -> showOrderDetails());
+        ordersTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && ordersTable.getSelectedRow() >= 0) showOrderDetails();
+            }
+        });
         ordersTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         dashboardLabel.setFont(dashboardLabel.getFont().deriveFont(Font.BOLD, 13f));
@@ -276,6 +284,7 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         bar.add(advance);
         bar.add(advanceAll);
         bar.add(cancelButton);
+        bar.add(detailsButton);
         bar.add(Box.createHorizontalStrut(20));
         bar.add(dashboardLabel);
         updateDashboard();
@@ -666,6 +675,24 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
         afterOrderChange(o);
     }
 
+    /** Shows the full receipt of the selected order. */
+    void showOrderDetails() {
+        Order o = selectedOrder();
+        if (o == null) return;
+        String text = store.orderDetails(o);
+        if (headless) {
+            log("[GUI] Details of " + o.getId() + " opened");
+            return;
+        }
+        JTextArea area = new JTextArea(text);
+        area.setFont(MONO);
+        area.setEditable(false);
+        area.setCaretPosition(0);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setPreferredSize(new Dimension(560, 380));
+        JOptionPane.showMessageDialog(this, scroll, "Order " + o.getId(), JOptionPane.PLAIN_MESSAGE);
+    }
+
     private void afterOrderChange(Order o) {
         int index = store.getOrders().indexOf(o);
         ordersModel.fireTableDataChanged();
@@ -678,11 +705,13 @@ public class MainFrame extends JFrame implements ConfigurationEditor {
     private void updateOrderHint() {
         Order o = selectedOrder();
         if (o == null) {
-            orderHint.setText("Select an order to see what can happen next.");
+            orderHint.setText("Select an order to see what can happen next. Double-click for details.");
             cancelButton.setEnabled(false);
+            detailsButton.setEnabled(false);
         } else {
             orderHint.setText(o.getId() + " - " + o.getStatus() + ": " + o.getHint());
             cancelButton.setEnabled(o.canCancel());
+            detailsButton.setEnabled(true);
         }
     }
 

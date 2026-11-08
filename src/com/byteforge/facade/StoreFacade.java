@@ -197,6 +197,30 @@ public class StoreFacade {
 
     private final Map<Order, List<Component>> reservedUnits = new HashMap<>();
 
+    /** Full printable receipt of a placed order (line items come from the decorator chain). */
+    public String orderDetails(Order order) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Order %s for %s%n", order.getId(), order.getCustomer()));
+        sb.append(String.format("Status:  %s - %s%n", order.getStatus(), order.getHint()));
+        sb.append(String.format("Payment: %s%n", order.getPaymentId() == null ? "-" : order.getPaymentId()));
+        if (order.getCancelReason() != null) {
+            sb.append(String.format("Cancelled because: %s (refunded)%n", order.getCancelReason()));
+        }
+        sb.append('\n').append(order.getProduct().getDescription()).append("\n\n");
+        for (String line : order.getProduct().getLineItems()) {
+            sb.append(line).append('\n');
+        }
+        double unit = order.getProduct().getPrice();
+        double subtotal = unit * order.getQuantity();
+        sb.append(String.format("%-38s %10.2f%n", "Price per PC", unit));
+        sb.append(String.format("%-38s %10d%n", "Quantity", order.getQuantity()));
+        sb.append(String.format("%-38s %10.2f%n", "Subtotal", subtotal));
+        sb.append(String.format("%-38s%n", "Pricing: " + order.getPricing().getName()));
+        sb.append(String.format("%-38s %10.2f%n", "Discount", -(subtotal - order.getTotal())));
+        sb.append(String.format("%-38s %10.2f%n", "TOTAL", order.getTotal()));
+        return sb.toString();
+    }
+
     public List<Order> getOrders() {
         return Collections.unmodifiableList(orders);
     }

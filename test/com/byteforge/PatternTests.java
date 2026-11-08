@@ -373,6 +373,18 @@ public final class PatternTests {
             expect(IllegalArgumentException.class, () -> store.restock(gpu, 0));
             check(log.stream().anyMatch(l -> l.contains("Restocked 3 x")), log.toString());
         });
+        test("Facade", "order details show items, payment, state and cancel reason", () -> {
+            Order o = store.checkout("Ann", "4242", preset(BuildDirector.Preset.OFFICE),
+                    EnumSet.of(AddOnOption.OS_INSTALL), new PricingStrategies.Student(), 1);
+            String d = store.orderDetails(o);
+            check(d.contains("Order " + o.getId() + " for Ann"), d);
+            check(d.contains("Windows 11 Pro + drivers setup"), d);   // decorator line item
+            check(d.contains(o.getPaymentId()), d);
+            check(d.contains("Status:  PAID"), d);
+            check(d.contains(String.format("%10.2f", o.getTotal())), d);
+            store.cancelOrder(o, "found a cheaper offer");
+            check(store.orderDetails(o).contains("Cancelled because: found a cheaper offer"), store.orderDetails(o));
+        });
         test("Facade", "quote equals the order total", () -> {
             Computer c = preset(BuildDirector.Preset.OFFICE);
             PricingStrategy s = new PricingStrategies.CorporateBulk();
