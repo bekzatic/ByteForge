@@ -410,13 +410,14 @@ classDiagram
   <!-- ---------------- Builder -->
   <h2>3.4 Builder &mdash; <code>PCBuilder</code>, <code>Computer</code>, <code>BuildDirector</code> <span class="tag">Creational</span></h2>
   <p><b>Problem.</b> A computer has eight kinds of parts; some are optional (graphics card), some repeat (RAM modules, drives). A constructor with ten parameters would be unreadable, and an object built field-by-field with setters could exist in an invalid state (e.g. Intel CPU on an AMD board).</p>
-  <p><b>Solution.</b> <code>PCBuilder</code> collects parts through a fluent API. <code>build()</code> runs the <code>CompatibilityChecker</code> and only then creates an <i>immutable</i> <code>Computer</code> (its constructor is package-private, so the builder is the only way to obtain one). The GUI calls <code>validate()</code> after every change to show problems live. <code>BuildDirector</code> plays the Director role: it knows the recipes of the shop's three presets and returns a pre-filled builder that the customer can still modify.</p>
+  <p><b>Solution.</b> <code>PCBuilder</code> collects parts through a fluent API. <code>build()</code> runs the <code>CompatibilityChecker</code> and only then creates an <i>immutable</i> <code>Computer</code> (its constructor is package-private, so the builder is the only way to obtain one). The GUI calls <code>validate()</code> after every change to show problems live. <code>BuildDirector</code> plays the Director role: it knows the recipes of the shop's three presets and returns a pre-filled builder that the customer can still modify. <code>identify()</code> works the other way round: it tells whether a builder still holds exactly a preset's parts, so a modified preset is honestly named &ldquo;Custom build&rdquo;.</p>
   <div class="uml"><div class="mermaid">
 classDiagram
   direction LR
   class BuildDirector {
     -Inventory inventory
     +construct(Preset) PCBuilder
+    +identify(PCBuilder) Optional~Preset~
   }
   class PCBuilder {
     +name(String) PCBuilder
@@ -427,8 +428,10 @@ classDiagram
     +addDrive(Storage) PCBuilder
     +psu(PowerSupply) PCBuilder
     +pcCase(PcCase) PCBuilder
+    +rules(CompatibilityRule) PCBuilder
     +validate() List~String~
     +build() Computer
+    +loadParts() List~Component~
   }
   class Computer {
     &lt;&lt;immutable&gt;&gt;
@@ -701,7 +704,7 @@ classDiagram
   <!-- ---------------- Command -->
   <h2>3.9 Command &mdash; undo / redo <span class="tag">Behavioral</span></h2>
   <p><b>Problem.</b> While configuring a PC the customer experiments: tries a bigger graphics card, sees that the power supply is now too weak, changes the case, and then wants to go back. Without history every mistake must be repaired by hand. Loading a preset changes up to eight parts at once, and undoing it part by part would be tedious.</p>
-  <p><b>Solution.</b> Every change is an object implementing <code>Command</code> with <code>execute()</code> and <code>undo()</code>. <code>SelectPart</code> stores the category, the old and the new part; <code>ChangeRamModules</code> stores the old and new count; <code>Macro</code> groups several commands (a preset load) so they are undone as <i>one</i> step. <code>CommandHistory</code> is the invoker with an undo stack and a redo stack (a new command clears redo, history is limited to 100 steps). The receiver is the <code>ConfigurationEditor</code> interface; the Swing window implements it, and the tests use a simple in-memory implementation, so the commands are independent of the GUI. In the application the buttons <i>Undo</i>/<i>Redo</i> and the shortcuts Ctrl+Z / Ctrl+Y use this history.</p>
+  <p><b>Solution.</b> Every change is an object implementing <code>Command</code> with <code>execute()</code> and <code>undo()</code>. <code>SelectPart</code> stores the category, the old and the new part; <code>ChangeRamModules</code> stores the old and new count; <code>SelectSecondDrive</code> sets or clears the optional second drive; <code>Macro</code> groups several commands (a preset load) so they are undone as <i>one</i> step. <code>CommandHistory</code> is the invoker with an undo stack and a redo stack (a new command clears redo, history is limited to 100 steps). The receiver is the <code>ConfigurationEditor</code> interface; the Swing window implements it, and the tests use a simple in-memory implementation, so the commands are independent of the GUI. In the application the buttons <i>Undo</i>/<i>Redo</i> and the shortcuts Ctrl+Z / Ctrl+Y use this history.</p>
   <div class="uml"><div class="mermaid">
 classDiagram
   direction LR
@@ -719,6 +722,10 @@ classDiagram
   class ChangeRamModules {
     -int oldValue
     -int newValue
+  }
+  class SelectSecondDrive {
+    -Component oldDrive
+    -Component newDrive
   }
   class Macro {
     -List~Command~ steps
@@ -738,14 +745,18 @@ classDiagram
     +setPart(ComponentType, Component)
     +getRamModules() int
     +setRamModules(int)
+    +getSecondDrive() Component
+    +setSecondDrive(Component)
   }
   Command &lt;|.. SelectPart
+  Command &lt;|.. SelectSecondDrive
   Command &lt;|.. ChangeRamModules
   Command &lt;|.. Macro
   Macro o--&gt; "*" Command
   CommandHistory o--&gt; "*" Command : invoker
   SelectPart --&gt; ConfigurationEditor : receiver
   ChangeRamModules --&gt; ConfigurationEditor : receiver
+  SelectSecondDrive --&gt; ConfigurationEditor : receiver
   ConfigurationEditor &lt;|.. MainFrame
   </div></div>
 <pre>public static class SelectPart implements Command {
